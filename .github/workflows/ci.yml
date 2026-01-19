@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, master, develop, development]
+
+env:
+  NODE_VERSION: '22'
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: 🔄 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: '⚙️ Node setup'
+        uses: ./.github/actions/node-setup
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: ✅ Run linter
+        run: npm run lint
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: 🔄 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: '⚙️ Node setup'
+        uses: ./.github/actions/node-setup
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 🏗️ Build project
+        run: npm run build

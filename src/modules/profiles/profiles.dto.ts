@@ -77,6 +77,27 @@ export class UpdateProfileBody {
     example: DEFAULT_PROFILE_DATA.birthDate,
   })
   birthDate?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    example: DEFAULT_PROFILE_DATA.location,
+  })
+  location?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    example: DEFAULT_PROFILE_DATA.contactEmail,
+  })
+  contactEmail?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    example: DEFAULT_PROFILE_DATA.contactPhoneNumber,
+  })
+  contactPhoneNumber?: string;
 }
 
 export class UpdateLinkedInProfileBody {

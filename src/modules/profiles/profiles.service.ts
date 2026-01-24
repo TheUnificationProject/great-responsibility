@@ -63,6 +63,11 @@ export class ProfilesService {
       newData.biography = data.biography || null;
     if (data.birthDate !== undefined)
       newData.birthDate = data.birthDate ? new Date(data.birthDate) : null;
+    if (data.location !== undefined) newData.location = data.location || null;
+    if (data.contactEmail !== undefined)
+      newData.contactEmail = data.contactEmail || null;
+    if (data.contactPhoneNumber !== undefined)
+      newData.contactPhoneNumber = data.contactPhoneNumber || null;
 
     await this.profilesRepository.update({ uuid: profile.uuid }, newData);
   }

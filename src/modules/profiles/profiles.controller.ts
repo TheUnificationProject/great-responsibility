@@ -1,3 +1,5 @@
+import { SendMessageBody } from '@modules/contact-messages/contact-messages.dto';
+import { ContactMessagesService } from '@modules/contact-messages/contact-messages.service';
 import {
   GetProfilesQuery,
   ProfileParams,
@@ -14,20 +16,23 @@ import {
   HttpStatus,
   Param,
   Patch,
+  Post,
   Query,
+  Req,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation } from '@nestjs/swagger';
 
 @Controller('profiles')
 export class ProfilesController {
-  constructor(private readonly profilesService: ProfilesService) {}
+  constructor(
+    private readonly profilesService: ProfilesService,
+    private readonly contactMessagesService: ContactMessagesService,
+  ) {}
 
   @Get()
   @HttpCode(HttpStatus.OK)
   async getProfiles(@Query() query: GetProfilesQuery) {
     const result = await this.profilesService.getProfiles(query);
-
-    console.log(result);
 
     return {
       profiles: result.data.map((profile) =>
@@ -50,6 +55,9 @@ export class ProfilesController {
       title: data.title,
       biography: data.biography,
       birthDate: data.birthDate ? new Date(data.birthDate) : undefined,
+      location: data.location,
+      contactEmail: data.contactEmail,
+      contactPhoneNumber: data.contactPhoneNumber,
     });
   }
 
@@ -60,7 +68,9 @@ export class ProfilesController {
     @Param() params: ProfileParams,
     @Body() data: UpdateLinkedInProfileBody,
   ) {
-    await this.profilesService.updateLinkedInProfile(params.uuid, data);
+    await this.profilesService.updateLinkedInProfile(params.uuid, {
+      slug: data.slug,
+    });
   }
 
   @Patch(':uuid/github')
@@ -71,6 +81,33 @@ export class ProfilesController {
     @Param() params: ProfileParams,
     @Body() data: UpdateGitHubProfileBody,
   ) {
-    await this.profilesService.updateGitHubProfile(params.uuid, data);
+    await this.profilesService.updateGitHubProfile(params.uuid, {
+      username: data.username,
+    });
+  }
+
+  @Post(':uuid/contact-messages')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Send contact message to profile owner' })
+  async sendContactMessage(
+    @Param() params: ProfileParams,
+    @Body() data: SendMessageBody,
+    @Req() req: Request,
+  ) {
+    const lang =
+      (req.headers['accept-language'] as Optional<string>)?.split(',')[0] ||
+      null;
+
+    console.log('lang', lang);
+
+    await this.contactMessagesService.createContactMessage({
+      profileUuid: params.uuid,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      organizationName: data.organizationName || null,
+      email: data.email,
+      phoneNumber: data.phoneNumber || null,
+      message: data.message,
+    });
   }
 }

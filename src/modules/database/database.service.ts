@@ -1,5 +1,9 @@
 import { ConfigService } from '@modules/config/config.service';
-import { Injectable, OnModuleDestroy } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleDestroy,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { createDrizzleClient, DrizzleClient } from 'optimus-package';
 import { Pool } from 'pg';
 
@@ -21,5 +25,13 @@ export class DatabaseService implements OnModuleDestroy {
 
   async onModuleDestroy(): Promise<void> {
     await this.pool.end();
+  }
+
+  async ping(): Promise<void> {
+    try {
+      await this.pool.query('SELECT 1');
+    } catch {
+      throw new ServiceUnavailableException('Database is not available');
+    }
   }
 }

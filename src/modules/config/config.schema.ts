@@ -8,4 +8,8 @@ export const configSchema = z.object({
     .string()
     .default('true')
     .transform((val) => val === 'true'),
+
+  REDIS_URL: z.string().nonempty().default('redis://localhost:6379'),
+
+  SECRET_KEY: z.string().nonempty(),
 });

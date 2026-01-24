@@ -21,6 +21,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation } from '@nestjs/swagger';
+import type { Request } from 'express';
 
 @Controller('profiles')
 export class ProfilesController {
@@ -97,8 +98,6 @@ export class ProfilesController {
     const lang =
       (req.headers['accept-language'] as Optional<string>)?.split(',')[0] ||
       null;
-
-    console.log('lang', lang);
 
     await this.contactMessagesService.createContactMessage({
       profileUuid: params.uuid,

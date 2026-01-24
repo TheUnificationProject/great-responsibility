@@ -9,7 +9,14 @@ import {
 } from '@nestjs/common';
 import bcrypt from 'bcrypt';
 import { eq, or } from 'drizzle-orm';
-import { User, UserEntity, userSchema } from 'optimus-package';
+import {
+  MinimalUser,
+  PrivateUser,
+  User,
+  UserEntity,
+  UserRole,
+  userSchema,
+} from 'optimus-package';
 
 const HASH_ROUNDS = 10;
 
@@ -110,12 +117,29 @@ export class UsersService {
     await this.usersRepository.update({ uuid }, newData);
   }
 
+  public formatMinimalUser(user: UserEntity): MinimalUser {
+    return {
+      uuid: user.uuid,
+      username: user.username,
+    };
+  }
+
   public formatUser(user: UserEntity): User {
     return {
       uuid: user.uuid,
       username: user.username,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      deletedAt: user.deletedAt,
+    };
+  }
+
+  public formatPrivateUser(user: UserEntity): PrivateUser {
+    return {
+      uuid: user.uuid,
+      username: user.username,
       email: user.email,
-      role: user.role,
+      role: user.role as UserRole,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       deletedAt: user.deletedAt,

@@ -19,6 +19,7 @@ export class ContactMessagesService {
       email: data.email,
       phoneNumber: data.phoneNumber,
       message: data.message,
+      lang: data.lang,
     });
 
     return contactMessage;

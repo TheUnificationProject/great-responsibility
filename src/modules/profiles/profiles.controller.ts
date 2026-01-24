@@ -108,6 +108,7 @@ export class ProfilesController {
       email: data.email,
       phoneNumber: data.phoneNumber || null,
       message: data.message,
+      lang,
     });
   }
 }

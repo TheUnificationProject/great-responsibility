@@ -33,7 +33,7 @@
     "drizzle-kit": "^0.31.8",
     "drizzle-orm": "^0.45.1",
     "express": "^5.2.1",
-    "optimus-package": "github:FiestaTheNewbieDev/optimus-package",
+    "optimus-package": "https://github.com/TheUnificationProject/optimus-package.git",
     "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",

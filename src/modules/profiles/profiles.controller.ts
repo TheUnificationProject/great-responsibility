@@ -1,3 +1,5 @@
+import { AdminGuard } from '@guards/admin.guard';
+import { AuthenticatedGuard } from '@guards/authenticated.guard';
 import { SendMessageBody } from '@modules/contact-messages/contact-messages.dto';
 import { ContactMessagesService } from '@modules/contact-messages/contact-messages.service';
 import {
@@ -19,8 +21,10 @@ import {
   Post,
   Query,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation } from '@nestjs/swagger';
+import type { Request } from 'express';
 
 @Controller('profiles')
 export class ProfilesController {
@@ -42,6 +46,7 @@ export class ProfilesController {
     };
   }
 
+  @UseGuards(AuthenticatedGuard, AdminGuard)
   @Patch(':uuid')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Update profile' })
@@ -61,6 +66,7 @@ export class ProfilesController {
     });
   }
 
+  @UseGuards(AuthenticatedGuard, AdminGuard)
   @Patch(':uuid/linkedin')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Update LinkedIn profile' })
@@ -73,6 +79,7 @@ export class ProfilesController {
     });
   }
 
+  @UseGuards(AuthenticatedGuard, AdminGuard)
   @Patch(':uuid/github')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiBody({ type: UpdateGitHubProfileBody })
@@ -97,8 +104,6 @@ export class ProfilesController {
     const lang =
       (req.headers['accept-language'] as Optional<string>)?.split(',')[0] ||
       null;
-
-    console.log('lang', lang);
 
     await this.contactMessagesService.createContactMessage({
       profileUuid: params.uuid,

@@ -40,7 +40,7 @@ export class ProfilesController {
 
     return {
       profiles: result.data.map((profile) =>
-        this.profilesService.formatProfile(profile),
+        ProfilesService.formatProfile(profile),
       ),
       pagination: result.pagination,
     };

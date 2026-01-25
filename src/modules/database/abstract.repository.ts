@@ -6,15 +6,15 @@ import {
   InferSelectModel,
   isNull,
   SQL,
-  SQLWrapper,
   Table,
 } from 'drizzle-orm';
 import { PgSelect, PgTable, TableConfig } from 'drizzle-orm/pg-core';
 
-export type WhereValue<T> = T | SQL | SQLWrapper;
-export type WhereClause<TEntity> = Partial<{
-  [K in keyof TEntity]: WhereValue<TEntity[K]>;
-}>;
+export type WhereClause<TSchema extends PgTable<TableConfig>> =
+  | SQL<unknown>
+  | SQL<unknown>[]
+  | Partial<InferSelectModel<TSchema>>
+  | undefined;
 
 export type FindOptions<
   WithPagination extends boolean = false,
@@ -40,14 +40,14 @@ export abstract class AbstractRepository<
   }
 
   async findOne(
-    where: WhereClause<TEntity>,
+    where: WhereClause<TSchema>,
     options: FindOptions = {},
   ): Promise<Nullable<TEntity>> {
     const { includeDeleted = false } = options;
 
     const conditions = this.buildConditions(where);
     if (!includeDeleted && this.schema['deletedAt'])
-      conditions.push(isNull(this.schema['deletedAt'] as SQL));
+      conditions.push(isNull(this.schema['deletedAt']) as SQL<TSchema>);
 
     const query = this.db
       .select()
@@ -61,7 +61,7 @@ export abstract class AbstractRepository<
   }
 
   async findMany(
-    where?: Nullable<WhereClause<TEntity>>,
+    where?: Nullable<WhereClause<TSchema>>,
     options: FindOptions<true> = {},
   ): Promise<TEntity[]> {
     const { offset, limit, includeDeleted = false } = options;
@@ -73,7 +73,7 @@ export abstract class AbstractRepository<
 
     const conditions = this.buildConditions(where);
     if (!includeDeleted && this.schema['deletedAt'])
-      conditions.push(isNull(this.schema['deletedAt'] as SQL));
+      conditions.push(isNull(this.schema['deletedAt']) as SQL<TSchema>);
 
     if (conditions.length > 0) {
       query = query.where(and(...conditions));
@@ -96,24 +96,26 @@ export abstract class AbstractRepository<
   }
 
   async update(
-    where: WhereClause<TEntity>,
+    where: WhereClause<TSchema>,
     data: Omit<Partial<TEntity>, DataExcludedKeys>,
   ) {
     const _data: Partial<TEntity> = { ...data } as Partial<TEntity>;
     if (this.schema['updatedAt'])
       (_data as Partial<TEntity> & { updatedAt: Date }).updatedAt = new Date();
 
+    const conditions = this.buildConditions(where);
+
     const result = await this.db
       .update(this.schema)
       .set(_data)
-      .where(and(...this.buildConditions(where)))
+      .where(and(...conditions))
       .returning();
 
     return result;
   }
 
   async delete(
-    where: WhereClause<TEntity>,
+    where: WhereClause<TSchema>,
     options: { hardDelete?: boolean } = {},
   ) {
     const { hardDelete = false } = options;
@@ -131,7 +133,7 @@ export abstract class AbstractRepository<
   }
 
   async count(
-    where?: Nullable<WhereClause<TEntity>>,
+    where?: Nullable<WhereClause<TSchema>>,
     options: FindOptions<false> = {},
   ): Promise<number> {
     const { includeDeleted = false } = options;
@@ -142,7 +144,7 @@ export abstract class AbstractRepository<
 
     const conditions = this.buildConditions(where);
     if (!includeDeleted && this.schema['deletedAt'])
-      conditions.push(isNull(this.schema['deletedAt'] as SQL));
+      conditions.push(isNull(this.schema['deletedAt']) as SQL<TSchema>);
 
     const result = await query.where(and(...conditions));
 
@@ -161,23 +163,52 @@ export abstract class AbstractRepository<
     return query;
   }
 
-  protected buildConditions(where: Nullish<WhereClause<TEntity>>) {
-    const conditions: (SQL | SQLWrapper)[] = [];
-    if (where)
-      conditions.push(
-        ...Object.entries(where).map(([key, value]) => {
-          if (
-            typeof value === 'object' &&
-            value !== null &&
-            ('toSQL' in value || 'getSQL' in value)
-          ) {
-            return value as SQL | SQLWrapper;
-          }
-          return eq(this.schema[key], value);
-        }),
-      );
+  protected buildConditions(
+    where: Nullish<WhereClause<TSchema>>,
+  ): SQL<unknown>[] {
+    const conditions: SQL<unknown>[] = [];
+
+    if (!where) return conditions;
+
+    // Si c'est un tableau de SQL
+    if (Array.isArray(where)) {
+      conditions.push(...where);
+    }
+    // Si c'est déjà un SQL
+    else if (where instanceof SQL) {
+      conditions.push(where);
+    }
+    // Si c'est un objet simple (Partial<TEntity>)
+    else if (typeof where === 'object') {
+      for (const [key, value] of Object.entries(where)) {
+        if (value !== undefined && key in this.schema) {
+          conditions.push(eq(this.schema[key], value));
+        }
+      }
+    }
+
     return conditions;
   }
+
+  // protected buildConditions(
+  //   where: Nullish<WhereClause<TSchema>>,
+  // ): SQL<TSchema>[] {
+  //   const conditions: SQL<TSchema>[] = [];
+  //   if (where)
+  //     // conditions.push(
+  //     //   ...Object.entries(where).map(([key, value]) => {
+  //     //     if (
+  //     //       typeof value === 'object' &&
+  //     //       value !== null &&
+  //     //       ('toSQL' in value || 'getSQL' in value)
+  //     //     ) {
+  //     //       return value as SQL | SQLWrapper;
+  //     //     }
+  //     //     return eq(this.schema[key], value);
+  //     //   }),
+  //     // );
+  //   return conditions;
+  // }
 
   getPaginationParams(query: { page?: number; limit?: number }): {
     limit: number;

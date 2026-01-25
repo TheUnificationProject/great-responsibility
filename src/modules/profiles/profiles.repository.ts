@@ -13,9 +13,11 @@ import {
   profileSchema,
 } from 'optimus-package';
 
+type Schema = typeof profileSchema;
+
 @Injectable()
 export class ProfilesRepository extends AbstractRepository<
-  typeof profileSchema,
+  Schema,
   ProfileEntity
 > {
   declare protected readonly MAX_DATA_PER_PAGE: 25;
@@ -25,7 +27,7 @@ export class ProfilesRepository extends AbstractRepository<
   }
 
   override async findMany(
-    where?: Nullable<WhereClause<ProfileEntity>>,
+    where?: Nullable<WhereClause<Schema>>,
     options: FindOptions<true> = {},
   ): Promise<ProfileEntity[]> {
     const { offset, limit } = options;

@@ -1,4 +1,3 @@
-import { WhereClause } from '@modules/database/abstract.repository';
 import { BANNED_USERNAMES } from '@modules/users/users.constants';
 import { UsersRepository } from '@modules/users/users.repository';
 import {
@@ -8,15 +7,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import bcrypt from 'bcrypt';
-import { eq, or } from 'drizzle-orm';
-import {
-  MinimalUser,
-  PrivateUser,
-  User,
-  UserEntity,
-  UserRole,
-  userSchema,
-} from 'optimus-package';
+import { MinimalUser, PrivateUser, User, UserEntity } from 'optimus-package';
 
 const HASH_ROUNDS = 10;
 
@@ -28,12 +19,7 @@ export class UsersService {
     login: string,
     password: string,
   ): Promise<Nullable<UserEntity>> {
-    const user = await this.usersRepository.findOne(
-      or(
-        eq(userSchema.username, login),
-        eq(userSchema.email, login),
-      ) as WhereClause<UserEntity>,
-    );
+    const user = await this.usersRepository.findByLogin(login);
 
     if (
       !user?.password ||
@@ -139,7 +125,7 @@ export class UsersService {
       uuid: user.uuid,
       username: user.username,
       email: user.email,
-      role: user.role as UserRole,
+      role: user.role,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       deletedAt: user.deletedAt,

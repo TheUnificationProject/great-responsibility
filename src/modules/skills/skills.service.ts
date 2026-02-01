@@ -1,9 +1,10 @@
+import { ImageExtension, ImageMimeType } from '@/types';
 import { FirebaseStorageService } from '@modules/firebase/firebase-storage.service';
 import { SkillsRepository } from '@modules/skills/skills.repository';
 import { ConflictException, Injectable, Logger } from '@nestjs/common';
-import { getMimeTypeFromExtension } from '@utils/image';
 import { slugify } from '@utils/string';
 import { PaginatedResult, Skill, SkillEntity } from 'optimus-package';
+import sharp from 'sharp';
 
 @Injectable()
 export class SkillsService {
@@ -38,20 +39,20 @@ export class SkillsService {
     };
   }
 
-  private async uploadSkillIcon(
-    slug: string,
-    file: Buffer,
-    fileExtension: string,
-  ): Promise<string> {
-    const contentType = getMimeTypeFromExtension(fileExtension);
-    if (!contentType)
-      throw new Error(`Unsupported image extension: ${fileExtension}`);
+  private async uploadSkillIcon(slug: string, buffer: Buffer): Promise<string> {
+    const file = await sharp(buffer)
+      .resize(256, 256, { fit: 'inside', withoutEnlargement: true })
+      .webp({
+        quality: 85,
+        effort: 4,
+      })
+      .toBuffer();
 
     const uploadResult = await this.firebaseStorageService.uploadImage({
       path: 'images/skills/icons',
       file,
-      fileName: `${slug}.${fileExtension}`,
-      contentType,
+      fileName: `${slug}.${ImageExtension.WEBP}`,
+      contentType: ImageMimeType.WEBP,
     });
 
     return uploadResult.url;
@@ -65,10 +66,9 @@ export class SkillsService {
       (
         | {
             iconUrl: Nullable<string>;
-            iconFile?: never;
-            iconFileExtension?: never;
+            iconBuffer?: never;
           }
-        | { iconUrl?: never; iconFile: Buffer; iconFileExtension: string }
+        | { iconUrl?: never; iconBuffer: Buffer }
       ),
   ): Promise<SkillEntity> {
     const slug = slugify(data.label);
@@ -85,13 +85,9 @@ export class SkillsService {
 
     if ('iconUrl' in data && data.iconUrl) {
       _data.iconUrl = data.iconUrl;
-    } else if ('iconFile' in data && data.iconFile) {
+    } else if ('iconBuffer' in data && data.iconBuffer) {
       try {
-        _data.iconUrl = await this.uploadSkillIcon(
-          slug,
-          data.iconFile,
-          data.iconFileExtension,
-        );
+        _data.iconUrl = await this.uploadSkillIcon(slug, data.iconBuffer);
         this.logger.log(`Icon uploaded for "${data.label}": ${_data.iconUrl}`);
       } catch (uploadError) {
         this.logger.warn(

@@ -3,7 +3,6 @@ import { SkillsService } from '@modules/skills/skills.service';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { readFile } from 'fs/promises';
 import { SkillEntity } from 'optimus-package';
-import { extname } from 'path';
 
 @Injectable()
 export class SkillsSeeder implements OnModuleInit {
@@ -26,14 +25,12 @@ export class SkillsSeeder implements OnModuleInit {
         if (skillData.iconPath) {
           const iconPath = skillData.iconPath;
 
-          const iconFile = await readFile(iconPath);
-          const iconFileExtension = extname(iconPath).slice(1);
+          const iconBuffer = await readFile(iconPath);
 
           promise = this.skillsService.createSkill({
             label: skillData.label,
             category: skillData.category,
-            iconFile,
-            iconFileExtension,
+            iconBuffer,
           });
         } else {
           promise = this.skillsService.createSkill({

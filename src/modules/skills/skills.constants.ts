@@ -3,13 +3,6 @@ import { join } from 'path';
 
 const ASSETS_DIR = join(process.cwd(), 'src/assets/skills/icons');
 
-export const SKILL_ICONS = {
-  typescript: join(ASSETS_DIR, 'typescript-original.svg'),
-  javascript: join(ASSETS_DIR, 'javascript-original.svg'),
-  java: join(ASSETS_DIR, 'java-original-wordmark.svg'),
-  python: join(ASSETS_DIR, 'python-original.svg'),
-};
-
 export type SkillSeedData = Omit<
   SkillEntity,
   'slug' | 'createdAt' | 'iconUrl' | 'updatedAt' | 'deletedAt'
@@ -24,91 +17,91 @@ export const DEFAULT_SKILLS: SkillSeedData[] = [
   {
     label: 'TypeScript',
     category: 'language',
-    iconPath: SKILL_ICONS.typescript,
+    iconPath: join(ASSETS_DIR, 'typescript-original.svg'),
   },
   {
     label: 'JavaScript',
     category: 'language',
-    iconPath: SKILL_ICONS.javascript,
+    iconPath: join(ASSETS_DIR, 'javascript-original.svg'),
   },
   {
     label: 'Java',
     category: 'language',
-    iconPath: SKILL_ICONS.java,
+    iconPath: join(ASSETS_DIR, 'java-original-wordmark.svg'),
   },
   {
     label: 'Python',
     category: 'language',
-    iconPath: SKILL_ICONS.python,
+    iconPath: join(ASSETS_DIR, 'python-original.svg'),
   },
   {
     label: 'PHP',
     category: 'language',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'php-original.svg'),
   },
   {
     label: 'C',
     category: 'language',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'c-original.svg'),
   },
   {
     label: 'C#',
     category: 'language',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'csharp-original.svg'),
   },
   {
     label: 'SQL',
     category: 'language',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'sql.jpg'),
   },
 
   // Runtime / Tools
   {
     label: 'Node.js',
     category: 'tool',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'nodejs-original.svg'),
   },
   {
     label: 'Docker',
     category: 'devops',
-    iconUrl: null,
-  },
-  {
-    label: 'Linux',
-    category: 'tool',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'docker-original.svg'),
   },
   {
     label: 'Nginx',
     category: 'devops',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'nginx-original.svg'),
   },
 
   // Frameworks
   {
     label: 'React',
     category: 'framework',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'react-original.svg'),
   },
   {
     label: 'Next.js',
     category: 'framework',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'nextjs-original.svg'),
   },
   {
     label: 'NestJS',
     category: 'framework',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'nestjs-original.svg'),
   },
   {
     label: 'Express',
     category: 'framework',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'express-original.svg'),
   },
   {
     label: 'Laravel',
     category: 'framework',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'laravel-original.svg'),
+  },
+  {
+    label: 'Django',
+    category: 'framework',
+    iconPath: join(ASSETS_DIR, 'django-plain-wordmark.svg'),
   },
 
   // Libraries
@@ -119,11 +112,6 @@ export const DEFAULT_SKILLS: SkillSeedData[] = [
   },
   {
     label: 'Prisma',
-    category: 'library',
-    iconUrl: null,
-  },
-  {
-    label: 'GraphQL',
     category: 'library',
     iconUrl: null,
   },
@@ -151,6 +139,11 @@ export const DEFAULT_SKILLS: SkillSeedData[] = [
   },
   {
     label: 'Redis',
+    category: 'database',
+    iconUrl: null,
+  },
+  {
+    label: 'Elasticsearch',
     category: 'database',
     iconUrl: null,
   },
@@ -206,21 +199,6 @@ export const DEFAULT_SKILLS: SkillSeedData[] = [
 
   // Testing / Quality
   {
-    label: 'Jest',
-    category: 'testing',
-    iconUrl: null,
-  },
-  {
-    label: 'Cypress',
-    category: 'testing',
-    iconUrl: null,
-  },
-  {
-    label: 'Playwright',
-    category: 'testing',
-    iconUrl: null,
-  },
-  {
     label: 'ESLint',
     category: 'tool',
     iconUrl: null,
@@ -234,11 +212,6 @@ export const DEFAULT_SKILLS: SkillSeedData[] = [
   // Cloud / Deploy
   {
     label: 'Vercel',
-    category: 'cloud',
-    iconUrl: null,
-  },
-  {
-    label: 'Netlify',
     category: 'cloud',
     iconUrl: null,
   },

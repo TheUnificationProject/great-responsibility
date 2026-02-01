@@ -3,7 +3,15 @@ import { FirebaseStorageService } from '@modules/firebase/firebase-storage.servi
 import { SkillsRepository } from '@modules/skills/skills.repository';
 import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import { slugify } from '@utils/string';
-import { PaginatedResult, Skill, SkillEntity } from 'optimus-package';
+import { inArray, SQL } from 'drizzle-orm';
+import {
+  PaginatedResult,
+  Skill,
+  SkillCategory,
+  SkillEntity,
+  SkillSchema,
+  skillSchema,
+} from 'optimus-package';
 import sharp from 'sharp';
 
 @Injectable()
@@ -19,13 +27,19 @@ export class SkillsService {
     query: {
       limit?: number;
       page?: number;
+      categories?: SkillCategory[];
     } = {},
   ): Promise<PaginatedResult<SkillEntity>> {
     const { limit, offset } = this.skillsRepository.getPaginationParams(query);
 
+    const where: SQL<SkillSchema> | undefined =
+      query.categories && query.categories.length > 0
+        ? (inArray(skillSchema.category, query.categories) as SQL<SkillSchema>)
+        : undefined;
+
     const [skills, count] = await Promise.all([
-      this.skillsRepository.findMany({}, { limit, offset }),
-      this.skillsRepository.count(),
+      this.skillsRepository.findMany(where, { limit, offset }),
+      this.skillsRepository.count(where),
     ]);
 
     return {

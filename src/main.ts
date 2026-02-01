@@ -4,6 +4,7 @@ import { AppModule } from '@modules/app.module';
 import { AUTH_COOKIE_NAME } from '@modules/auth/auth.constants';
 import { ConfigService } from '@modules/config/config.service';
 import { RedisService } from '@modules/redis/redis.service';
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { RedisStore } from 'connect-redis';
 import session from 'express-session';
@@ -15,6 +16,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.useGlobalInterceptors(new LoggingInterceptor());
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
   const configService = app.get(ConfigService);
   const redisService = app.get(RedisService);

@@ -1,8 +1,6 @@
 import { SkillEntity } from 'optimus-package';
 import { join } from 'path';
 
-// Local icon paths for seeding
-// From dist/src/modules/skills/ we need to go up 3 levels to dist/, then to assets/
 const ASSETS_DIR = join(process.cwd(), 'src/assets/skills/icons');
 
 export const SKILL_ICONS = {
@@ -12,7 +10,6 @@ export const SKILL_ICONS = {
   python: join(ASSETS_DIR, 'python-original.svg'),
 };
 
-// Extended type for seeding with local icon paths
 export type SkillSeedData = Omit<
   SkillEntity,
   'slug' | 'createdAt' | 'iconUrl' | 'updatedAt' | 'deletedAt'

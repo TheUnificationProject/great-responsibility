@@ -1,4 +1,4 @@
-import { IMAGE_MIME_TYPES } from '@utils/images';
+import { IMAGE_MIME_TYPES } from '@utils/image';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { z } from 'zod';

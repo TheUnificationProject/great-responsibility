@@ -1,9 +1,9 @@
 import { FirebaseStorageService } from '@modules/firebase/firebase-storage.service';
 import { SkillsRepository } from '@modules/skills/skills.repository';
 import { ConflictException, Injectable, Logger } from '@nestjs/common';
-import { getMimeTypeFromExtension } from '@utils/images';
+import { getMimeTypeFromExtension } from '@utils/image';
+import { slugify } from '@utils/string';
 import { PaginatedResult, Skill, SkillEntity } from 'optimus-package';
-import slugify from 'slugify';
 
 @Injectable()
 export class SkillsService {
@@ -71,7 +71,7 @@ export class SkillsService {
         | { iconUrl?: never; iconFile: Buffer; iconFileExtension: string }
       ),
   ): Promise<SkillEntity> {
-    const slug = SkillsService.slugifyLabel(data.label);
+    const slug = slugify(data.label);
 
     const existingSkill = await this.skillsRepository.findOne({ slug });
     if (existingSkill)
@@ -103,22 +103,6 @@ export class SkillsService {
     const skill = await this.skillsRepository.create(_data);
 
     return skill;
-  }
-
-  private static readonly SPECIAL_CHARS: Record<string, string> = {
-    '#': ' sharp',
-    '+': ' plus',
-  };
-
-  public static slugifyLabel(label: string): string {
-    let processed = label;
-    for (const [char, replacement] of Object.entries(
-      SkillsService.SPECIAL_CHARS,
-    )) {
-      processed = processed.replaceAll(char, replacement);
-    }
-
-    return slugify(processed, { lower: true, strict: true });
   }
 
   public static formatSkill(skill: SkillEntity): Skill {

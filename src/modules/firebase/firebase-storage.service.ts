@@ -10,7 +10,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { IMAGE_EXTENSIONS, IMAGE_SIGNATURES_MAP } from '@utils/images';
+import { IMAGE_EXTENSIONS, IMAGE_SIGNATURES_MAP } from '@utils/image';
 
 @Injectable()
 export class FirebaseStorageService {

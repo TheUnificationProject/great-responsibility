@@ -13,5 +13,7 @@
     "vercel",
     "Vercel"
   ],
-  "cSpell.language": "en, fr"
+  "cSpell.language": "en, fr",
+
+  "typescript.preferences.autoImportFileExcludePatterns": ["slugify"]
 }

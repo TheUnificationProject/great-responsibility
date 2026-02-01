@@ -119,7 +119,7 @@ export class ProfilesService {
     );
   }
 
-  public formatProfile(profile: ProfileEntity): Profile {
+  public static formatProfile(profile: ProfileEntity): Profile {
     const formatted: Profile = {
       uuid: profile.uuid,
       firstName: profile.firstName,

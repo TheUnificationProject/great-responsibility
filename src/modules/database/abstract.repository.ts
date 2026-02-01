@@ -11,8 +11,8 @@ import {
 import { PgSelect, PgTable, TableConfig } from 'drizzle-orm/pg-core';
 
 export type WhereClause<TSchema extends PgTable<TableConfig>> =
-  | SQL<unknown>
-  | SQL<unknown>[]
+  | SQL<TSchema>
+  | SQL<TSchema>[]
   | Partial<InferSelectModel<TSchema>>
   | undefined;
 
@@ -28,7 +28,7 @@ export abstract class AbstractRepository<
   TSchema extends PgTable<TableConfig>,
   TEntity extends InferSelectModel<TSchema> = InferSelectModel<TSchema>,
 > {
-  protected readonly MAX_DATA_PER_PAGE = 25;
+  protected readonly MAX_DATA_PER_PAGE: number = 50;
 
   constructor(
     protected readonly databaseService: DatabaseService,

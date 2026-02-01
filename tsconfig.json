@@ -14,9 +14,11 @@
     "sourceMap": true,
     "outDir": "./dist",
     "paths": {
+      "@assets/*": ["./src/assets"],
       "@guards/*": ["./src/guards/*"],
       "@interceptors/*": ["./src/interceptors/*"],
       "@modules/*": ["./src/modules/*"],
+      "@utils/*": ["./src/utils/*"],
       "@/*": ["./src/*"],
       "package.json": ["./package.json"]
     },

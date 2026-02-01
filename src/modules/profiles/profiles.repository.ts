@@ -10,24 +10,23 @@ import {
   gitHubProfileSchema,
   linkedInProfileSchema,
   ProfileEntity,
+  ProfileSchema,
   profileSchema,
 } from 'optimus-package';
 
-type Schema = typeof profileSchema;
-
 @Injectable()
 export class ProfilesRepository extends AbstractRepository<
-  Schema,
+  ProfileSchema,
   ProfileEntity
 > {
-  declare protected readonly MAX_DATA_PER_PAGE: 25;
+  protected readonly MAX_DATA_PER_PAGE = 25;
 
   constructor(databaseService: DatabaseService) {
     super(databaseService, profileSchema);
   }
 
   override async findMany(
-    where?: Nullable<WhereClause<Schema>>,
+    where?: Nullable<WhereClause<ProfileSchema>>,
     options: FindOptions<true> = {},
   ): Promise<ProfileEntity[]> {
     const { offset, limit } = options;

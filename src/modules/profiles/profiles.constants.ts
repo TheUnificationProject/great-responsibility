@@ -4,7 +4,10 @@ import {
   ProfileEntity,
 } from 'optimus-package';
 
-export const DEFAULT_PROFILE_DATA: Partial<ProfileEntity> = {
+export const DEFAULT_PROFILE_DATA: Omit<
+  Partial<ProfileEntity>,
+  'uuid' | 'updatedAt'
+> = {
   firstName: 'Clément',
   lastName: 'Fossorier',
   title: 'Full Stack Developer | Computer Science Student @ETNA',

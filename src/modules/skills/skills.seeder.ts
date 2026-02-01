@@ -1,6 +1,9 @@
 import { DEFAULT_SKILLS } from '@modules/skills/skills.constants';
 import { SkillsService } from '@modules/skills/skills.service';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { readFile } from 'fs/promises';
+import { SkillEntity } from 'optimus-package';
+import { extname } from 'path';
 
 @Injectable()
 export class SkillsSeeder implements OnModuleInit {
@@ -18,9 +21,32 @@ export class SkillsSeeder implements OnModuleInit {
 
     for (const skillData of DEFAULT_SKILLS) {
       try {
-        const skill = await this.skillsService.createSkill(skillData);
+        let promise: Promise<SkillEntity>;
+
+        if (skillData.iconPath) {
+          const iconPath = skillData.iconPath;
+
+          const iconFile = await readFile(iconPath);
+          const iconFileExtension = extname(iconPath).slice(1);
+
+          promise = this.skillsService.createSkill({
+            label: skillData.label,
+            category: skillData.category,
+            iconFile,
+            iconFileExtension,
+          });
+        } else {
+          promise = this.skillsService.createSkill({
+            label: skillData.label,
+            category: skillData.category,
+            iconUrl: skillData.iconUrl || null,
+          });
+        }
+
+        const skill = await promise;
+
         this.logger.log(
-          `Skill "${skill.label}"(${skill.slug}) created successfully`,
+          `Skill "${skill.label}" (${skill.slug}) created successfully`,
         );
       } catch (error) {
         this.logger.error(

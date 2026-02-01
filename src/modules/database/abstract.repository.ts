@@ -11,8 +11,8 @@ import {
 import { PgSelect, PgTable, TableConfig } from 'drizzle-orm/pg-core';
 
 export type WhereClause<TSchema extends PgTable<TableConfig>> =
-  | SQL<unknown>
-  | SQL<unknown>[]
+  | SQL<TSchema>
+  | SQL<TSchema>[]
   | Partial<InferSelectModel<TSchema>>
   | undefined;
 

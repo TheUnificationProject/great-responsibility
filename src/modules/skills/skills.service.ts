@@ -1,11 +1,18 @@
+import { FirebaseStorageService } from '@modules/firebase/firebase-storage.service';
 import { SkillsRepository } from '@modules/skills/skills.repository';
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, Logger } from '@nestjs/common';
+import { getMimeTypeFromExtension } from '@utils/images';
 import { PaginatedResult, Skill, SkillEntity } from 'optimus-package';
 import slugify from 'slugify';
 
 @Injectable()
 export class SkillsService {
-  constructor(private readonly skillsRepository: SkillsRepository) {}
+  private readonly logger = new Logger(SkillsService.name);
+
+  constructor(
+    private readonly skillsRepository: SkillsRepository,
+    private readonly firebaseStorageService: FirebaseStorageService,
+  ) {}
 
   public async getSkills(
     query: {
@@ -31,8 +38,38 @@ export class SkillsService {
     };
   }
 
+  private async uploadSkillIcon(
+    slug: string,
+    file: Buffer,
+    fileExtension: string,
+  ): Promise<string> {
+    const contentType = getMimeTypeFromExtension(fileExtension);
+    if (!contentType)
+      throw new Error(`Unsupported image extension: ${fileExtension}`);
+
+    const uploadResult = await this.firebaseStorageService.uploadImage({
+      path: 'images/skills/icons',
+      file,
+      fileName: `${slug}.${fileExtension}`,
+      contentType,
+    });
+
+    return uploadResult.url;
+  }
+
   public async createSkill(
-    data: Omit<SkillEntity, 'slug' | 'createdAt' | 'updatedAt' | 'deletedAt'>,
+    data: Omit<
+      SkillEntity,
+      'slug' | 'iconUrl' | 'createdAt' | 'updatedAt' | 'deletedAt'
+    > &
+      (
+        | {
+            iconUrl: Nullable<string>;
+            iconFile?: never;
+            iconFileExtension?: never;
+          }
+        | { iconUrl?: never; iconFile: Buffer; iconFileExtension: string }
+      ),
   ): Promise<SkillEntity> {
     const slug = SkillsService.slugifyLabel(data.label);
 
@@ -40,13 +77,48 @@ export class SkillsService {
     if (existingSkill)
       throw new ConflictException(`Skill with slug "${slug}" already exists`);
 
-    const skill = await this.skillsRepository.create({ ...data, slug });
+    const _data: Partial<SkillEntity> = {
+      slug,
+      label: data.label,
+      category: data.category,
+    };
+
+    if ('iconUrl' in data && data.iconUrl) {
+      _data.iconUrl = data.iconUrl;
+    } else if ('iconFile' in data && data.iconFile) {
+      try {
+        _data.iconUrl = await this.uploadSkillIcon(
+          slug,
+          data.iconFile,
+          data.iconFileExtension,
+        );
+        this.logger.log(`Icon uploaded for "${data.label}": ${_data.iconUrl}`);
+      } catch (uploadError) {
+        this.logger.warn(
+          `Failed to upload icon for "${data.label}": ${uploadError}`,
+        );
+      }
+    }
+
+    const skill = await this.skillsRepository.create(_data);
 
     return skill;
   }
 
+  private static readonly SPECIAL_CHARS: Record<string, string> = {
+    '#': ' sharp',
+    '+': ' plus',
+  };
+
   public static slugifyLabel(label: string): string {
-    return slugify(label, { lower: true, strict: true });
+    let processed = label;
+    for (const [char, replacement] of Object.entries(
+      SkillsService.SPECIAL_CHARS,
+    )) {
+      processed = processed.replaceAll(char, replacement);
+    }
+
+    return slugify(processed, { lower: true, strict: true });
   }
 
   public static formatSkill(skill: SkillEntity): Skill {
@@ -54,6 +126,7 @@ export class SkillsService {
       slug: skill.slug,
       label: skill.label,
       iconUrl: skill.iconUrl,
+      category: skill.category,
       createdAt: skill.createdAt,
       updatedAt: skill.updatedAt,
       deletedAt: skill.deletedAt,

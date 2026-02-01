@@ -1,137 +1,254 @@
 import { SkillEntity } from 'optimus-package';
+import { join } from 'path';
 
-export const DEFAULT_SKILLS: Omit<
+// Local icon paths for seeding
+// From dist/src/modules/skills/ we need to go up 3 levels to dist/, then to assets/
+const ASSETS_DIR = join(process.cwd(), 'src/assets/skills/icons');
+
+export const SKILL_ICONS = {
+  typescript: join(ASSETS_DIR, 'typescript-original.svg'),
+  javascript: join(ASSETS_DIR, 'javascript-original.svg'),
+  java: join(ASSETS_DIR, 'java-original-wordmark.svg'),
+  python: join(ASSETS_DIR, 'python-original.svg'),
+};
+
+// Extended type for seeding with local icon paths
+export type SkillSeedData = Omit<
   SkillEntity,
-  'slug' | 'createdAt' | 'updatedAt' | 'deletedAt'
->[] = [
+  'slug' | 'createdAt' | 'iconUrl' | 'updatedAt' | 'deletedAt'
+> &
+  (
+    | { iconUrl: SkillEntity['iconUrl']; iconPath?: never }
+    | { iconPath: string; iconUrl?: never }
+  );
+
+export const DEFAULT_SKILLS: SkillSeedData[] = [
+  // Languages
   {
     label: 'TypeScript',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/typescript/typescript-original.svg',
+    category: 'language',
+    iconPath: SKILL_ICONS.typescript,
   },
   {
     label: 'JavaScript',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/javascript/javascript-original.svg',
+    category: 'language',
+    iconPath: SKILL_ICONS.javascript,
   },
   {
     label: 'Java',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/java/java-original.svg',
+    category: 'language',
+    iconPath: SKILL_ICONS.java,
   },
   {
     label: 'Python',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/python/python-original.svg',
+    category: 'language',
+    iconPath: SKILL_ICONS.python,
   },
   {
     label: 'PHP',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/php/php-original.svg',
+    category: 'language',
+    iconUrl: null,
   },
+  {
+    label: 'C',
+    category: 'language',
+    iconUrl: null,
+  },
+  {
+    label: 'C#',
+    category: 'language',
+    iconUrl: null,
+  },
+  {
+    label: 'SQL',
+    category: 'language',
+    iconUrl: null,
+  },
+
+  // Runtime / Tools
   {
     label: 'Node.js',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/nodejs/nodejs-original.svg',
-  },
-  {
-    label: 'React',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/react/react-original.svg',
-  },
-  {
-    label: 'NestJS',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/nestjs/nestjs-original.svg',
-  },
-  {
-    label: 'Express',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/express/express-original.svg',
-  },
-  {
-    label: 'Laravel',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/laravel/laravel-original.svg',
-  },
-  {
-    label: 'PostgreSQL',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/postgresql/postgresql-original-wordmark.svg',
-  },
-  {
-    label: 'MySQL',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/mysql/mysql-original-wordmark.svg',
-  },
-  {
-    label: 'MariaDB',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/mariadb/mariadb-original-wordmark.svg',
-  },
-  {
-    label: 'MongoDB',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/mongodb/mongodb-original.svg',
+    category: 'tool',
+    iconUrl: null,
   },
   {
     label: 'Docker',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/docker/docker-original-wordmark.svg',
+    category: 'devops',
+    iconUrl: null,
   },
   {
-    label: 'Git',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/git/git-original.svg',
+    label: 'Linux',
+    category: 'tool',
+    iconUrl: null,
   },
   {
-    label: 'GitHub',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/github/github-original.svg',
+    label: 'Nginx',
+    category: 'devops',
+    iconUrl: null,
   },
+
+  // Frameworks
   {
-    label: 'GitLab',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/gitlab/gitlab-original.svg',
-  },
-  {
-    label: 'Bitbucket',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/bitbucket/bitbucket-original.svg',
-  },
-  {
-    label: 'HTML',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/html5/html5-original.svg',
-  },
-  {
-    label: 'CSS',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/css3/css3-original.svg',
-  },
-  {
-    label: 'Sass',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/sass/sass-original.svg',
-  },
-  {
-    label: 'Tailwind CSS',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/tailwindcss/tailwindcss-original.svg',
-  },
-  {
-    label: 'Bootstrap',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/bootstrap/bootstrap-original.svg',
-  },
-  {
-    label: 'discord.js',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/discordjs/discordjs-original.svg',
+    label: 'React',
+    category: 'framework',
+    iconUrl: null,
   },
   {
     label: 'Next.js',
-    iconUrl:
-      'https://github.com/devicons/devicon/blob/master/icons/nextjs/nextjs-original.svg',
+    category: 'framework',
+    iconUrl: null,
   },
+  {
+    label: 'NestJS',
+    category: 'framework',
+    iconUrl: null,
+  },
+  {
+    label: 'Express',
+    category: 'framework',
+    iconUrl: null,
+  },
+  {
+    label: 'Laravel',
+    category: 'framework',
+    iconUrl: null,
+  },
+
+  // Libraries
+  {
+    label: 'discord.js',
+    category: 'library',
+    iconUrl: null,
+  },
+  {
+    label: 'Prisma',
+    category: 'library',
+    iconUrl: null,
+  },
+  {
+    label: 'GraphQL',
+    category: 'library',
+    iconUrl: null,
+  },
+
+  // Databases
+  {
+    label: 'PostgreSQL',
+    category: 'database',
+    iconUrl: null,
+  },
+  {
+    label: 'MySQL',
+    category: 'database',
+    iconUrl: null,
+  },
+  {
+    label: 'MariaDB',
+    category: 'database',
+    iconUrl: null,
+  },
+  {
+    label: 'MongoDB',
+    category: 'database',
+    iconUrl: null,
+  },
+  {
+    label: 'Redis',
+    category: 'database',
+    iconUrl: null,
+  },
+
+  // Front styling
+  {
+    label: 'HTML',
+    category: 'language',
+    iconUrl: null,
+  },
+  {
+    label: 'CSS',
+    category: 'language',
+    iconUrl: null,
+  },
+  {
+    label: 'Sass',
+    category: 'library',
+    iconUrl: null,
+  },
+  {
+    label: 'Tailwind CSS',
+    category: 'library',
+    iconUrl: null,
+  },
+  {
+    label: 'Bootstrap',
+    category: 'library',
+    iconUrl: null,
+  },
+
+  // Versioning / Platforms
+  {
+    label: 'Git',
+    category: 'tool',
+    iconUrl: null,
+  },
+  {
+    label: 'GitHub',
+    category: 'tool',
+    iconUrl: null,
+  },
+  {
+    label: 'GitLab',
+    category: 'tool',
+    iconUrl: null,
+  },
+  {
+    label: 'Bitbucket',
+    category: 'tool',
+    iconUrl: null,
+  },
+
+  // Testing / Quality
+  {
+    label: 'Jest',
+    category: 'testing',
+    iconUrl: null,
+  },
+  {
+    label: 'Cypress',
+    category: 'testing',
+    iconUrl: null,
+  },
+  {
+    label: 'Playwright',
+    category: 'testing',
+    iconUrl: null,
+  },
+  {
+    label: 'ESLint',
+    category: 'tool',
+    iconUrl: null,
+  },
+  {
+    label: 'Prettier',
+    category: 'tool',
+    iconUrl: null,
+  },
+
+  // Cloud / Deploy
+  {
+    label: 'Vercel',
+    category: 'cloud',
+    iconUrl: null,
+  },
+  {
+    label: 'Netlify',
+    category: 'cloud',
+    iconUrl: null,
+  },
+
+  // Soft skills
+  { label: 'Communication', category: 'softskill', iconUrl: null },
+  { label: 'Rigueur', category: 'softskill', iconUrl: null },
+  { label: 'Autonomie', category: 'softskill', iconUrl: null },
+  { label: "Esprit d'équipe", category: 'softskill', iconUrl: null },
 ];

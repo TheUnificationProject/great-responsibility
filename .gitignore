@@ -40,6 +40,9 @@ lerna-debug.log*
 .env.*
 !.env.example
 
+/src/secrets/*
+!/src/secrets/.gitkeep
+
 # temp directory
 .temp
 .tmp

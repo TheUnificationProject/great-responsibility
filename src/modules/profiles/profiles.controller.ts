@@ -46,6 +46,14 @@ export class ProfilesController {
     };
   }
 
+  @Get(':uuid')
+  @HttpCode(HttpStatus.OK)
+  async getProfile(@Param() params: ProfileParams) {
+    const profile = await this.profilesService.getProfileByUuid(params.uuid);
+
+    return ProfilesService.formatProfile(profile);
+  }
+
   @UseGuards(AuthenticatedGuard, AdminGuard)
   @Patch(':uuid')
   @HttpCode(HttpStatus.NO_CONTENT)

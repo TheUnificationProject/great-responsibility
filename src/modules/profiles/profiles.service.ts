@@ -43,6 +43,15 @@ export class ProfilesService {
     };
   }
 
+  public async getProfileByUuid(profileUuid: string): Promise<ProfileEntity> {
+    const profile: Nullable<ProfileEntity> =
+      await this.profilesRepository.findOne({ uuid: profileUuid });
+
+    if (!profile) throw new NotFoundException('Profile not found');
+
+    return profile;
+  }
+
   public async updateProfile(
     profileUuid: string,
     data: Partial<
@@ -55,7 +64,7 @@ export class ProfilesService {
       });
     if (!profile) throw new NotFoundException('Profile not found');
 
-    const newData: Partial<ProfileEntity> = {};
+    const newData: Partial<Omit<ProfileEntity, 'linkedIn' | 'gitHub'>> = {};
     if (data.firstName) newData.firstName = data.firstName;
     if (data.lastName) newData.lastName = data.lastName;
     if (data.title !== undefined) newData.title = data.title || null;

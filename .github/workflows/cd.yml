@@ -7,7 +7,7 @@ on:
 jobs:
   prepare:
     name: Prepare dependencies
-    runs-on: [Linux, X64]
+    runs-on: [self-hosted, Linux, X64]
     steps:
       - name: Pull & migrate optimus-package
         working-directory: ~/the-unification-project/optimus-package

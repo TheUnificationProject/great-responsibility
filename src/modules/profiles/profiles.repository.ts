@@ -25,6 +25,38 @@ export class ProfilesRepository extends AbstractRepository<
     super(databaseService, profileSchema);
   }
 
+  override async findOne(
+    where: WhereClause<ProfileSchema>,
+  ): Promise<Nullable<ProfileEntity>> {
+    const query = this.db
+      .select({
+        profile: profileSchema,
+        linkedIn: linkedInProfileSchema,
+        gitHub: gitHubProfileSchema,
+      })
+      .from(profileSchema)
+      .where(and(...this.buildConditions(where)))
+      .limit(1)
+      .leftJoin(
+        linkedInProfileSchema,
+        eq(profileSchema.uuid, linkedInProfileSchema.profileUuid),
+      )
+      .leftJoin(
+        gitHubProfileSchema,
+        eq(profileSchema.uuid, gitHubProfileSchema.profileUuid),
+      );
+
+    const result = (await query)[0] || null;
+
+    if (!result) return null;
+
+    return {
+      ...result.profile,
+      linkedIn: result.linkedIn,
+      gitHub: result.gitHub,
+    } as ProfileEntity;
+  }
+
   override async findMany(
     where?: Nullable<WhereClause<ProfileSchema>>,
     options: FindOptions<true> = {},

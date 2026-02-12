@@ -2,7 +2,11 @@ name: CD
 
 on:
   push:
-    branches: [main, chore/cd]
+    branches: [main]
+
+concurrency:
+  group: production
+  cancel-in-progress: false
 
 jobs:
   prepare:
@@ -34,7 +38,28 @@ jobs:
         working-directory: ${{ vars.WORKDIR }}
         run: |
           echo "Waiting for service to start..."
-          if ! timeout 60 bash -c 'until curl -f http://localhost:3000/health; do sleep 2; done'; then
+          if ! timeout 60 bash -c 'until curl -sf http://localhost:3000/health; do sleep 2; done'; then
             echo "Health check failed!"
             exit 1
           fi
+          echo "Service is up!"
+
+      - name: Rollback on failure
+        if: failure()
+        working-directory: ${{ vars.WORKDIR }}/great-responsibility
+        run: |
+          echo "Deployment failed, rolling back..."
+          git revert HEAD --no-edit
+          git push origin main
+          cd ${{ vars.WORKDIR }}
+          docker compose up great-responsibility --build -d
+
+      - name: Deployment summary
+        if: success()
+        run: |
+          echo "### ✅ Deployed to production" >> $GITHUB_STEP_SUMMARY
+          echo "| | |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Branch** | \`${{ github.ref_name }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Commit** | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **By** | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY

@@ -13,7 +13,7 @@ jobs:
     name: Prepare dependencies
     runs-on: [self-hosted, production]
     steps:
-      - name: Pull & migrate optimus-package
+      - name: 🔄 Pull & migrate optimus-package
         working-directory: ${{ vars.WORKDIR }}/optimus-package
         run: |
           git pull origin main
@@ -26,15 +26,15 @@ jobs:
     runs-on: [self-hosted, production]
 
     steps:
-      - name: Pull great-responsibility
+      - name: 🔄 Pull great-responsibility
         working-directory: ${{ vars.WORKDIR }}/great-responsibility
         run: git pull origin main
 
-      - name: Restart great-responsibility
+      - name: 🚀 Restart great-responsibility
         working-directory: ${{ vars.WORKDIR }}
         run: docker compose up great-responsibility --build -d
 
-      - name: Verify deployment
+      - name: ✅ Verify deployment
         working-directory: ${{ vars.WORKDIR }}
         run: |
           echo "Waiting for service to start..."
@@ -44,20 +44,19 @@ jobs:
           fi
           echo "Service is up!"
 
-      - name: Rollback on failure
+      - name: 📋 Dump logs on failure
         if: failure()
-        working-directory: ${{ vars.WORKDIR }}/great-responsibility
-        run: |
-          echo "Deployment failed, rolling back..."
-          git revert HEAD --no-edit
-          git push origin main
-          cd ${{ vars.WORKDIR }}
-          docker compose up great-responsibility --build -d
+        working-directory: ${{ vars.WORKDIR }}
+        run: docker compose logs great-responsibility --tail=50
 
-      - name: Deployment summary
-        if: success()
+      - name: 📝 Deployment summary
+        if: always()
         run: |
-          echo "### ✅ Deployed to production" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "### ✅ Deployed to production" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ❌ Deployment failed" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "| | |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
           echo "| **Branch** | \`${{ github.ref_name }}\` |" >> $GITHUB_STEP_SUMMARY

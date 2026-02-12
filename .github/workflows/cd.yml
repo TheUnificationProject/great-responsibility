@@ -7,10 +7,10 @@ on:
 jobs:
   prepare:
     name: Prepare dependencies
-    runs-on: self-hosted
+    runs-on: [self-hosted, production]
     steps:
       - name: Pull & migrate optimus-package
-        working-directory: ~/the-unification-project/optimus-package
+        working-directory: ${{ vars.WORKDIR }}/optimus-package
         run: |
           git pull origin main
           npm ci --omit=dev
@@ -19,19 +19,19 @@ jobs:
   deploy:
     name: Deploy
     needs: prepare
-    runs-on: [Linux, X64]
+    runs-on: [self-hosted, production]
 
     steps:
       - name: Pull great-responsibility
-        working-directory: ~/the-unification-project/great-responsibility
+        working-directory: ${{ vars.WORKDIR }}/great-responsibility
         run: git pull origin main
 
       - name: Restart great-responsibility
-        working-directory: ~/the-unification-project
+        working-directory: ${{ vars.WORKDIR }}
         run: docker compose up great-responsibility --build -d
 
       - name: Verify deployment
-        working-directory: ~/the-unification-project
+        working-directory: ${{ vars.WORKDIR }}
         run: |
           echo "Waiting for service to start..."
           if ! timeout 60 bash -c 'until curl -f http://localhost:3000/health; do sleep 2; done'; then

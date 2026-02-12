@@ -1,7 +1,7 @@
 import { SkillEntity } from 'optimus-package';
 import { join } from 'path';
 
-const ASSETS_DIR = join(process.cwd(), 'src/assets/skills/icons');
+const ASSETS_DIR = join(process.cwd(), 'assets/skills/icons');
 
 export type SkillSeedData = Omit<
   SkillEntity,

@@ -10,24 +10,55 @@ import {
   gitHubProfileSchema,
   linkedInProfileSchema,
   ProfileEntity,
+  ProfileSchema,
   profileSchema,
 } from 'optimus-package';
 
-type Schema = typeof profileSchema;
-
 @Injectable()
 export class ProfilesRepository extends AbstractRepository<
-  Schema,
+  ProfileSchema,
   ProfileEntity
 > {
-  declare protected readonly MAX_DATA_PER_PAGE: 25;
+  protected readonly MAX_DATA_PER_PAGE = 25;
 
   constructor(databaseService: DatabaseService) {
     super(databaseService, profileSchema);
   }
 
+  override async findOne(
+    where: WhereClause<ProfileSchema>,
+  ): Promise<Nullable<ProfileEntity>> {
+    const query = this.db
+      .select({
+        profile: profileSchema,
+        linkedIn: linkedInProfileSchema,
+        gitHub: gitHubProfileSchema,
+      })
+      .from(profileSchema)
+      .where(and(...this.buildConditions(where)))
+      .limit(1)
+      .leftJoin(
+        linkedInProfileSchema,
+        eq(profileSchema.uuid, linkedInProfileSchema.profileUuid),
+      )
+      .leftJoin(
+        gitHubProfileSchema,
+        eq(profileSchema.uuid, gitHubProfileSchema.profileUuid),
+      );
+
+    const result = (await query)[0] || null;
+
+    if (!result) return null;
+
+    return {
+      ...result.profile,
+      linkedIn: result.linkedIn,
+      gitHub: result.gitHub,
+    } as ProfileEntity;
+  }
+
   override async findMany(
-    where?: Nullable<WhereClause<Schema>>,
+    where?: Nullable<WhereClause<ProfileSchema>>,
     options: FindOptions<true> = {},
   ): Promise<ProfileEntity[]> {
     const { offset, limit } = options;

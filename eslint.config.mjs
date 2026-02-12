@@ -26,6 +26,17 @@ export default tseslint.config(
   },
   {
     rules: {
+      'no-restricted-imports': [
+        'warn',
+        {
+          paths: [
+            {
+              name: 'slugify',
+              message: 'Use src/utils/string.ts instead.',
+            },
+          ],
+        },
+      ],
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',

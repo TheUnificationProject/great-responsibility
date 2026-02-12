@@ -1,1 +1,17 @@
 package-lock.json linguist-generated=true
+
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.gif binary
+*.webp binary
+*.svg binary
+*.ico binary
+
+*.jpg linguist-vendored
+*.jpeg linguist-vendored
+*.png linguist-vendored
+*.gif linguist-vendored
+*.webp linguist-vendored
+*.svg linguist-vendored
+*.ico linguist-vendored

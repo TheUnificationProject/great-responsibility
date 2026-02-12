@@ -40,10 +40,18 @@ export class ProfilesController {
 
     return {
       profiles: result.data.map((profile) =>
-        this.profilesService.formatProfile(profile),
+        ProfilesService.formatProfile(profile),
       ),
       pagination: result.pagination,
     };
+  }
+
+  @Get(':uuid')
+  @HttpCode(HttpStatus.OK)
+  async getProfile(@Param() params: ProfileParams) {
+    const profile = await this.profilesService.getProfileByUuid(params.uuid);
+
+    return ProfilesService.formatProfile(profile);
   }
 
   @UseGuards(AuthenticatedGuard, AdminGuard)

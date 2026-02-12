@@ -6,26 +6,15 @@ export function transformGoogleCredentials(
   filename: string,
   ctx: z.RefinementCtx,
 ) {
-  const cwd = process.cwd();
-  const candidates = [
-    join(cwd, 'secrets', filename),
-    join(cwd, 'src/secrets', filename),
-  ];
+  const filepath = join(process.cwd(), 'secrets', filename);
 
-  let fileContent: string | undefined;
-  for (const candidate of candidates) {
-    try {
-      fileContent = readFileSync(candidate, 'utf-8');
-      break;
-    } catch {
-      // try next candidate
-    }
-  }
-
-  if (!fileContent) {
+  let fileContent: string;
+  try {
+    fileContent = readFileSync(filepath, 'utf-8');
+  } catch {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
-      message: `Cannot read credentials file "${filename}". Looked in: ${candidates.join(', ')}`,
+      message: `Cannot read credentials file at "${filepath}". Make sure the file exists in src/secrets/.`,
     });
     return z.NEVER;
   }

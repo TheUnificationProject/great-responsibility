@@ -13,7 +13,7 @@ jobs:
         working-directory: ${{ vars.WORKDIR }}/optimus-package
         run: |
           git pull origin main
-          npm ci --omit=dev
+          npm ci
           npm run drizzle:migrate
 
   deploy:

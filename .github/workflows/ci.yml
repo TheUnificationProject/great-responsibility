@@ -4,14 +4,11 @@ on:
   pull_request:
     branches: [main, master, develop, development, feature/secure-ci]
 
-env:
-  NODE_VERSION: '22'
-
 jobs:
   lint:
     name: Lint
     runs-on: [self-hosted]
-    container: node:${{ env.NODE_VERSION }}
+    container: node:22
     permissions:
       contents: read
 
@@ -22,7 +19,7 @@ jobs:
       - name: '⚙️ Node setup'
         uses: ./.github/actions/node-setup
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: '22'
 
       - name: ✅ Run linter
         run: npm run lint
@@ -30,7 +27,7 @@ jobs:
   build:
     name: Build
     runs-on: [self-hosted]
-    container: node:${{ env.NODE_VERSION }}
+    container: node:22
     permissions:
       contents: read
 
@@ -41,7 +38,7 @@ jobs:
       - name: '⚙️ Node setup'
         uses: ./.github/actions/node-setup
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: '22'
 
       - name: 🏗️ Build project
         run: npm run build

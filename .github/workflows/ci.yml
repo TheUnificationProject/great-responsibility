@@ -2,7 +2,9 @@ name: CI
 
 on:
   pull_request:
-    branches: [main, master, develop, development, feature/secure-ci]
+    branches: [main, master, develop, development]
+  push:
+    branches: [feature/secure-ci]
 
 jobs:
   lint:

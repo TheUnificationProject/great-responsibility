@@ -27,7 +27,10 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/platform-socket.io": "^11.1.14",
     "@nestjs/swagger": "^11.2.3",
+    "@nestjs/websockets": "^11.1.14",
+    "@socket.io/redis-adapter": "^8.3.0",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
@@ -46,6 +49,7 @@
     "rxjs": "^7.8.1",
     "sharp": "^0.34.5",
     "slugify": "^1.6.6",
+    "socket.io": "^4.8.3",
     "zod": "^4.2.1"
   },
   "devDependencies": {

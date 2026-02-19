@@ -41,7 +41,11 @@ describe('UsersService', () => {
     }).compile();
 
     service = module.get(UsersService);
-    repository = module.get(UsersRepository);
+    repository = module.get<jest.Mocked<UsersRepository>>(UsersRepository);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   describe('validateUser', () => {
@@ -61,6 +65,7 @@ describe('UsersService', () => {
       const result = await service.validateUser('unknown', 'pass');
 
       expect(result).toBeNull();
+      expect(repository.findByLogin).toHaveBeenCalledWith('unknown');
     });
 
     it('should return null when password is invalid', async () => {
@@ -70,6 +75,7 @@ describe('UsersService', () => {
       const result = await service.validateUser('user1', 'wrong');
 
       expect(result).toBeNull();
+      expect(repository.findByLogin).toHaveBeenCalledWith('user1');
     });
   });
 
@@ -190,6 +196,40 @@ describe('UsersService', () => {
         }),
       ).rejects.toThrow(NotFoundException);
     });
+
+    it('should throw ConflictException when username is taken by another user', async () => {
+      const user = createUserEntity({ uuid: 'abc' });
+      const otherUser = createUserEntity({ uuid: 'other', username: 'taken' });
+      repository.findOne
+        .mockResolvedValueOnce(user) // find user by uuid
+        .mockResolvedValueOnce(otherUser); // username taken by other user
+
+      await expect(
+        service.updateUser('abc', {
+          username: 'taken',
+          email: 'new@test.com',
+        }),
+      ).rejects.toThrow(ConflictException);
+    });
+
+    it('should throw ConflictException when email is taken by another user', async () => {
+      const user = createUserEntity({ uuid: 'abc' });
+      const otherUser = createUserEntity({
+        uuid: 'other',
+        email: 'taken@test.com',
+      });
+      repository.findOne
+        .mockResolvedValueOnce(user) // find user by uuid
+        .mockResolvedValueOnce(null) // username not taken
+        .mockResolvedValueOnce(otherUser); // email taken by other user
+
+      await expect(
+        service.updateUser('abc', {
+          username: 'newname',
+          email: 'taken@test.com',
+        }),
+      ).rejects.toThrow(ConflictException);
+    });
   });
 
   describe('formatMinimalUser', () => {
@@ -208,12 +248,13 @@ describe('UsersService', () => {
 
       const result = service.formatUser(user);
 
-      expect(result).not.toHaveProperty('password');
-      expect(result).not.toHaveProperty('email');
-      expect(result).not.toHaveProperty('role');
-      expect(result).toHaveProperty('uuid');
-      expect(result).toHaveProperty('username');
-      expect(result).toHaveProperty('createdAt');
+      expect(result).toEqual({
+        uuid: user.uuid,
+        username: user.username,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        deletedAt: user.deletedAt,
+      });
     });
   });
 
@@ -223,9 +264,15 @@ describe('UsersService', () => {
 
       const result = service.formatPrivateUser(user);
 
-      expect(result).not.toHaveProperty('password');
-      expect(result.role).toBe('admin');
-      expect(result).toHaveProperty('email');
+      expect(result).toEqual({
+        uuid: user.uuid,
+        username: user.username,
+        email: user.email,
+        role: 'admin',
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        deletedAt: user.deletedAt,
+      });
     });
   });
 });

@@ -87,16 +87,18 @@ export class UsersService {
       const existingUser = await this.usersRepository.findOne({
         username: data.username,
       });
-      if (existingUser?.uuid === uuid)
-        throw new BadRequestException('Username is already in use');
+      if (existingUser && existingUser.uuid !== uuid)
+        throw new ConflictException(
+          `Username ${data.username} is already in use`,
+        );
       newData.username = data.username;
     }
     if (data.email) {
       const existingUser = await this.usersRepository.findOne({
         email: data.email,
       });
-      if (existingUser?.uuid === uuid)
-        throw new BadRequestException('Email is already in use');
+      if (existingUser && existingUser.uuid !== uuid)
+        throw new ConflictException(`Email ${data.email} is already in use`);
       newData.email = data.email;
     }
 

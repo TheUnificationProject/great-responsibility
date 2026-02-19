@@ -8,20 +8,20 @@ export const DEFAULT_PROFILE_DATA: Omit<
   Partial<ProfileEntity>,
   'uuid' | 'updatedAt'
 > = {
-  firstName: 'Clément',
-  lastName: 'Fossorier',
-  title: 'Full Stack Developer | Computer Science Student @ETNA',
+  firstName: 'John',
+  lastName: 'Doe',
+  title: 'Professional dwarves thrower',
   biography:
-    'I am a full stack developer with a passion for building web applications. I am currently a computer science student at ETNA.',
-  birthDate: new Date('2003-12-04'),
-  location: 'Région parisienne, France',
-  contactEmail: 'clement.fossorier@gmail.com',
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque pellentesque, diam eget bibendum hendrerit, mi ante tristique nunc, ut gravida diam nunc sit amet ante. Integer non egestas diam. Aenean eu pellentesque purus. Morbi id accumsan sem. Interdum et malesuada fames ac ante ipsum primis in faucibus. Curabitur quis laoreet enim. Nulla ligula diam, varius vitae mauris eu, condimentum tempus nibh. Cras elementum elementum ipsum, sed fringilla dui consectetur vehicula.',
+  birthDate: new Date('2000-01-01'),
+  location: 'Paris, France',
+  contactEmail: 'john.doe@example.com',
 };
 
 export const DEFAULT_LINKEDIN_PROFILE_DATA: Partial<LinkedInProfileEntity> = {
-  slug: 'clement-fossorier',
+  slug: 'john-doe',
 };
 
 export const DEFAULT_GITHUB_PROFILE_DATA: Partial<GitHubProfileEntity> = {
-  username: 'FiestaTheNewbieDev',
+  username: 'torvalds',
 };

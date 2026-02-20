@@ -7,8 +7,8 @@ on:
     branches: [feature/tests]
 
 jobs:
-  lint:
-    name: Lint
+  check:
+    name: Lint & Build
     runs-on: [self-hosted, ci]
     container: node:22
     permissions:
@@ -26,25 +26,16 @@ jobs:
       - name: ✅ Run linter
         run: npm run lint
 
-  build:
-    name: Build
-    runs-on: [self-hosted, ci]
-    container: node:22
-    permissions:
-      contents: read
-    needs: [lint]
-
-    steps:
-      - name: 🔄 Checkout repository
-        uses: actions/checkout@v4
-
-      - name: '⚙️ Node setup'
-        uses: ./.github/actions/node-setup
-        with:
-          node-version: '22'
+      - name: 📋 Dump lint logs on failure
+        if: failure()
+        run: cat $GITHUB_WORKSPACE/lint.log
 
       - name: 🏗️ Build project
         run: npm run build
+
+      - name: 📋 Dump build logs on failure
+        if: failure()
+        run: cat $GITHUB_WORKSPACE/build.log
 
   test:
     name: Test
@@ -64,3 +55,26 @@ jobs:
 
       - name: ✅ Run tests
         run: npm run test
+
+      - name: 📋 Dump test logs on failure
+        if: failure()
+        run: cat $GITHUB_WORKSPACE/test.log
+
+      - name: 📝 Test summary
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "### ✅ All tests passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ❌ Some tests failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "| | |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Branch** | \`${{ github.ref_name }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Commit** | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          if [ -f "$GITHUB_WORKSPACE/test.log" ]; then
+            echo "### 📋 Test Logs" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat $GITHUB_WORKSPACE/test.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi

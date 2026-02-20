@@ -2,7 +2,6 @@ import { DEFAULT_SKILLS } from '@modules/skills/skills.constants';
 import { SkillsService } from '@modules/skills/skills.service';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { readFile } from 'fs/promises';
-import { SkillEntity } from 'optimus-package';
 
 @Injectable()
 export class SkillsSeeder implements OnModuleInit {
@@ -18,40 +17,38 @@ export class SkillsSeeder implements OnModuleInit {
       return;
     }
 
-    for (const skillData of DEFAULT_SKILLS) {
-      try {
-        let promise: Promise<SkillEntity>;
-
-        if (skillData.iconPath) {
-          const iconPath = skillData.iconPath;
-
-          const iconBuffer = await readFile(iconPath);
-
-          promise = this.skillsService.createSkill({
-            label: skillData.label,
-            category: skillData.category,
-            iconBuffer,
-          });
-        } else {
-          promise = this.skillsService.createSkill({
-            label: skillData.label,
-            category: skillData.category,
-            iconUrl: skillData.iconUrl || null,
-          });
-        }
-
-        const skill = await promise;
+    const results = await Promise.allSettled(
+      DEFAULT_SKILLS.map(async (skillData) => {
+        const skill = skillData.iconPath
+          ? await this.skillsService.createSkill({
+              label: skillData.label,
+              category: skillData.category,
+              iconBuffer: await readFile(skillData.iconPath),
+            })
+          : await this.skillsService.createSkill({
+              label: skillData.label,
+              category: skillData.category,
+              iconUrl: skillData.iconUrl || null,
+            });
 
         this.logger.log(
           `Skill "${skill.label}" (${skill.slug}) created successfully`,
         );
-      } catch (error) {
-        this.logger.error(
-          `Failed to create skill "${skillData.label}": ${error}`,
-        );
-      }
+
+        return skill;
+      }),
+    );
+
+    const failed = results.filter(
+      (r): r is PromiseRejectedResult => r.status === 'rejected',
+    );
+
+    for (const result of failed) {
+      this.logger.error(`Failed to create skill: ${result.reason}`);
     }
 
-    this.logger.log('Skills seeding completed');
+    this.logger.log(
+      `Skills seeding completed: ${results.length - failed.length}/${results.length} succeeded`,
+    );
   }
 }

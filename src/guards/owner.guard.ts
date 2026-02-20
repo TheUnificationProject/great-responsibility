@@ -6,15 +6,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import type { Request } from 'express';
-import type { UserRole } from 'optimus-package';
 import { Observable } from 'rxjs';
 
-const ALLOWED_ROLES: UserRole[] = ['admin', 'owner'] as const;
-
-const FORBIDDEN_MESSAGE = 'User is not an admin';
+const FORBIDDEN_MESSAGE = 'User is not an owner';
 
 @Injectable()
-export class AdminGuard implements CanActivate {
+export class OwnerGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
@@ -23,7 +20,7 @@ export class AdminGuard implements CanActivate {
     if (!request.user?.uuid)
       throw new UnauthorizedException(UNAUTHORIZED_MESSAGE);
 
-    if (ALLOWED_ROLES.includes(request.user.role)) return true;
+    if (request.user.role === 'owner') return true;
 
     throw new ForbiddenException(FORBIDDEN_MESSAGE);
   }

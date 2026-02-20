@@ -52,7 +52,6 @@ jobs:
     container: node:22
     permissions:
       contents: read
-    needs: [lint, build]
 
     steps:
       - name: 🔄 Checkout repository

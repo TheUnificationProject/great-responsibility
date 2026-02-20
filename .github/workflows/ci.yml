@@ -71,7 +71,7 @@ jobs:
           node-version: '22'
 
       - name: ✅ Run tests
-        run: npm test
+        run: npm test 2>&1 | tee $GITHUB_WORKSPACE/test.log; exit ${PIPESTATUS[0]}
 
       - name: ✅ Test summary (success)
         if: success()

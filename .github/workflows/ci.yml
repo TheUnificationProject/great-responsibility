@@ -77,18 +77,25 @@ jobs:
           set -o pipefail
           npm run test 2>&1 | tee $GITHUB_WORKSPACE/test.log
 
+      - name: 📋 Dump test logs on failure
+        if: failure()
+        run: cat $GITHUB_WORKSPACE/test.log
+
+      - name: test success
+        if: success()
+        run: echo "All tests passed!"
+
       - name: 📝 Test summary
         if: always()
         run: |
-          if [ "${{ steps.run-tests.outcome }}" == "success" ]; then
+          if ${{ steps.run-tests.outcome == 'success' }}; then
             echo "### ✅ All tests passed" >> $GITHUB_STEP_SUMMARY
           else
             echo "### ❌ Some tests failed" >> $GITHUB_STEP_SUMMARY
           fi
-          echo "| | |" >> $GITHUB_STEP_SUMMARY
-          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
           echo "| **Branch** | \`${{ github.ref_name }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Commit** | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **By** | \`${{ github.actor }}\` |" >> $GITHUB_STEP_SUMMARY
           if [ -f "$GITHUB_WORKSPACE/test.log" ]; then
             echo "### 📋 Test Logs" >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY

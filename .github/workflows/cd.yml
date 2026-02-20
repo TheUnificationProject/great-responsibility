@@ -57,8 +57,6 @@ jobs:
           else
             echo "### ❌ Deployment failed" >> $GITHUB_STEP_SUMMARY
           fi
-          echo "| | |" >> $GITHUB_STEP_SUMMARY
-          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
           echo "| **Branch** | \`${{ github.ref_name }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Commit** | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **By** | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY

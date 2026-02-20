@@ -13,6 +13,7 @@ const config: Config = {
     '!src/swagger.ts',
     '!src/**/*.module.ts',
     '!src/**/*.constants.ts',
+    '!src/**/*.seeder.ts',
     // Ignore types
     '!src/types/**',
     '!src/**/*.types.ts',

@@ -7,8 +7,8 @@ on:
     branches: [feature/tests]
 
 jobs:
-  check:
-    name: Lint & Build
+  lint:
+    name: Lint
     runs-on: [self-hosted, ci]
     container: node:22
     permissions:
@@ -29,6 +29,23 @@ jobs:
       - name: 📋 Dump lint logs on failure
         if: failure()
         run: cat $GITHUB_WORKSPACE/lint.log
+
+  build:
+    name: Build
+    runs-on: [self-hosted, ci]
+    container: node:22
+    permissions:
+      contents: read
+    needs: [lint]
+
+    steps:
+      - name: 🔄 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: '⚙️ Node setup'
+        uses: ./.github/actions/node-setup
+        with:
+          node-version: '22'
 
       - name: 🏗️ Build project
         run: npm run build

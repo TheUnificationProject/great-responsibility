@@ -71,16 +71,15 @@ jobs:
           node-version: '22'
 
       - name: ✅ Run tests
-        run: npm run test
-
-      - name: 📋 Dump test logs on failure
-        if: failure()
-        run: cat $GITHUB_WORKSPACE/test.log
+        id: run-tests
+        run: |
+          set -o pipefail
+          npm run test 2>&1 | tee $GITHUB_WORKSPACE/test.log
 
       - name: 📝 Test summary
         if: always()
         run: |
-          if [ "${{ job.status }}" == "success" ]; then
+          if [ "${{ steps.run-tests.outcome }}" == "success" ]; then
             echo "### ✅ All tests passed" >> $GITHUB_STEP_SUMMARY
           else
             echo "### ❌ Some tests failed" >> $GITHUB_STEP_SUMMARY

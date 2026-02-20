@@ -3,8 +3,6 @@ name: CI
 on:
   pull_request:
     branches: [main, master, develop, development]
-  push:
-    branches: [feature/tests]
 
 jobs:
   lint:

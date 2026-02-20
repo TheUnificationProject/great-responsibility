@@ -108,100 +108,110 @@ export const DEFAULT_SKILLS: SkillSeedData[] = [
   {
     label: 'discord.js',
     category: 'library',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'discordjs-original.svg'),
   },
   {
     label: 'Prisma',
     category: 'library',
+    iconPath: join(ASSETS_DIR, 'prisma-original.svg'),
+  },
+  {
+    label: 'Drizzle',
+    category: 'library',
     iconUrl: null,
+  },
+  {
+    label: 'Mongoose',
+    category: 'library',
+    iconPath: join(ASSETS_DIR, 'mongoose-original.svg'),
   },
 
   // Databases
   {
     label: 'PostgreSQL',
     category: 'database',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'postgresql-original.svg'),
   },
   {
     label: 'MySQL',
     category: 'database',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'mysql-original.svg'),
   },
   {
     label: 'MariaDB',
     category: 'database',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'mariadb-original.svg'),
   },
   {
     label: 'MongoDB',
     category: 'database',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'mongodb-original.svg'),
   },
   {
     label: 'Redis',
     category: 'database',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'redis-original.svg'),
   },
   {
     label: 'Elasticsearch',
     category: 'database',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'elasticsearch-original.svg'),
   },
 
   // Front styling
   {
     label: 'HTML',
     category: 'language',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'html5-original.svg'),
   },
   {
     label: 'CSS',
     category: 'language',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'css3-original.svg'),
   },
   {
     label: 'Sass',
     category: 'library',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'sass-original.svg'),
   },
   {
     label: 'Tailwind CSS',
     category: 'library',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'tailwindcss-original.svg'),
   },
   {
     label: 'Bootstrap',
     category: 'library',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'bootstrap-original.svg'),
   },
 
   // Versioning / Platforms
   {
     label: 'Git',
     category: 'tool',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'git-original.svg'),
   },
   {
     label: 'GitHub',
     category: 'tool',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'github-original.svg'),
   },
   {
     label: 'GitLab',
     category: 'tool',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'gitlab-original.svg'),
   },
   {
     label: 'Bitbucket',
     category: 'tool',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'bitbucket-original.svg'),
   },
 
   // Testing / Quality
   {
     label: 'ESLint',
     category: 'tool',
-    iconUrl: null,
+    iconPath: join(ASSETS_DIR, 'eslint-original.svg'),
   },
   {
     label: 'Prettier',
@@ -221,4 +231,4 @@ export const DEFAULT_SKILLS: SkillSeedData[] = [
   { label: 'Rigueur', category: 'softskill', iconUrl: null },
   { label: 'Autonomie', category: 'softskill', iconUrl: null },
   { label: "Esprit d'équipe", category: 'softskill', iconUrl: null },
-];
+] as const;

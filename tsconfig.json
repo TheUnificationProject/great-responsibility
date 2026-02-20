@@ -21,6 +21,8 @@
       "@modules/*": ["./src/modules/*"],
       "@utils/*": ["./src/utils/*"],
       "@/*": ["./src/*"],
+      "@factories/*": ["./test/factories/*"],
+      "@test/*": ["./test/*"],
       "package.json": ["./package.json"]
     },
     "resolveJsonModule": true,
@@ -30,6 +32,7 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "types": ["node", "jest"]
   }
 }

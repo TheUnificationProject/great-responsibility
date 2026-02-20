@@ -1,12 +1,11 @@
-import {
+import type {
   CallHandler,
   ExecutionContext,
-  Injectable,
-  Logger,
   NestInterceptor,
 } from '@nestjs/common';
-import { Request } from 'express';
-import { UserEntity } from 'optimus-package';
+import { Injectable, Logger } from '@nestjs/common';
+import type { Request } from 'express';
+import type { UserEntity } from 'optimus-package';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 
 interface HttpError extends Error {
@@ -20,8 +19,8 @@ export class LoggingInterceptor implements NestInterceptor {
 
   intercept(
     context: ExecutionContext,
-    next: CallHandler<any>,
-  ): Observable<any> | Promise<Observable<any>> {
+    next: CallHandler<unknown>,
+  ): Observable<unknown> | Promise<Observable<unknown>> {
     const request: Request = context.switchToHttp().getRequest();
     const start = Date.now();
 

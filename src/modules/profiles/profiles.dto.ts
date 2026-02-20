@@ -32,7 +32,7 @@ export class ProfileParams {
     description: 'The UUID of the profile',
     example: '08532d7c-f50e-4190-9b19-b4e7169dc7cd',
   })
-  uuid: string;
+  uuid!: string;
 }
 
 export class UpdateProfileBody {

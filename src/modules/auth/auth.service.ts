@@ -12,11 +12,12 @@ import { UserEntity } from 'optimus-package';
 export class AuthService {
   constructor(private readonly usersService: UsersService) {}
 
-  signIn(req: Request, res: Response, rememberMe?: boolean) {
+  signIn(req: Request, res: Response, rememberMe: boolean = false) {
     return req.login(req.user!, (error) => {
       if (error) throw error;
 
       if (rememberMe) {
+        req.session.rememberMe = true;
         req.session.cookie.maxAge = REMEMBER_ME_SESSION_TIMEOUT_MS;
         req.session.cookie.expires = new Date(
           Date.now() + REMEMBER_ME_SESSION_TIMEOUT_MS,

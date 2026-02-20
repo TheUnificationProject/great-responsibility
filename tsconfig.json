@@ -18,6 +18,7 @@
       "@secrets/*": ["./secrets/*"],
       "@guards/*": ["./src/guards/*"],
       "@interceptors/*": ["./src/interceptors/*"],
+      "@middlewares/*": ["./src/middlewares/*"],
       "@modules/*": ["./src/modules/*"],
       "@utils/*": ["./src/utils/*"],
       "@/*": ["./src/*"],

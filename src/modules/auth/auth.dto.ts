@@ -29,7 +29,12 @@ export class SignInBody {
 
   @IsBoolean()
   @IsOptional()
-  @ApiProperty({ name: 'rememberMe', type: Boolean, required: false })
+  @ApiProperty({
+    name: 'rememberMe',
+    type: Boolean,
+    required: false,
+    default: false,
+  })
   rememberMe?: boolean;
 }
 

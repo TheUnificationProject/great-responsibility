@@ -5,3 +5,10 @@ declare module 'express' {
     user: Nullable<UserEntity>;
   }
 }
+
+declare module 'express-session' {
+  interface SessionData {
+    rememberMe?: boolean;
+    regenerationCounter?: number;
+  }
+}

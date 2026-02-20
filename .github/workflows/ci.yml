@@ -73,14 +73,19 @@ jobs:
       - name: ✅ Run tests
         run: npm test
 
+      - name: ✅ Test summary (success)
+        if: success()
+        run: echo "### ✅ All tests passed" >> $GITHUB_STEP_SUMMARY
+
+      - name: ❌ Test summary (failure)
+        if: failure()
+        run: echo "### ❌ Some tests failed" >> $GITHUB_STEP_SUMMARY
+
       - name: 📝 Test summary
         if: always()
         run: |
-          if [ "${{ job.status }}" == "success" ]; then
-            echo "### ✅ All tests passed" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "### ❌ Some tests failed" >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "|  |  |" >> $GITHUB_STEP_SUMMARY
+          echo "|--|--|" >> $GITHUB_STEP_SUMMARY
           echo "| **Branch** | \`${{ github.ref_name }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Commit** | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **By** | \`${{ github.actor }}\` |" >> $GITHUB_STEP_SUMMARY

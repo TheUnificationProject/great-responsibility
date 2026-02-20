@@ -72,6 +72,7 @@ jobs:
 
       - name: ✅ Run tests
         id: run-tests
+        shell: bash
         run: |
           set -o pipefail
           npm run test 2>&1 | tee $GITHUB_WORKSPACE/test.log

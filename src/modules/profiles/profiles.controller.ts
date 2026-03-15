@@ -114,12 +114,12 @@ export class ProfilesController {
       null;
 
     await this.contactMessagesService.createContactMessage({
-      profileUuid: params.uuid,
+      profile: params.uuid,
       firstName: data.firstName,
       lastName: data.lastName,
-      organizationName: data.organizationName || null,
+      organizationName: data.organizationName,
       email: data.email,
-      phoneNumber: data.phoneNumber || null,
+      phoneNumber: data.phoneNumber,
       message: data.message,
       lang,
     });

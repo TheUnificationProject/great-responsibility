@@ -1,4 +1,4 @@
-import { UserEntity } from 'optimus-package';
+import { UserEntity, UserRole } from 'optimus-package';
 
 let counter = 0;
 
@@ -11,10 +11,10 @@ export function createUserEntity(
     username: `user${counter}`,
     email: `user${counter}@test.com`,
     password: '$2b$10$abcdefghijklmnopqrstuuABCDEFGHIJKLMNOPQRSTUVWXYZ01',
-    role: 'user',
+    role: UserRole.USER,
     createdAt: new Date('2025-01-01T00:00:00Z'),
     updatedAt: new Date('2025-01-01T00:00:00Z'),
-    deletedAt: null,
+    deletedAt: undefined,
     ...overrides,
   };
 }

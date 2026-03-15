@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { UserRole } from 'optimus-package';
 import { UsersRepository } from './users.repository';
 import { UsersService } from './users.service';
 
@@ -18,11 +19,24 @@ jest.mock('bcrypt', () => ({
   },
 }));
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+jest.mock('@mikro-orm/core', () => ({
+  ...jest.requireActual('@mikro-orm/core'),
+  wrap: jest.fn().mockReturnValue({ assign: jest.fn() }),
+}));
+
 describe('UsersService', () => {
   let service: UsersService;
   let repository: jest.Mocked<UsersRepository>;
 
+  const mockFlush = jest.fn().mockResolvedValue(undefined);
+  const mockPersist = jest.fn().mockReturnValue({ flush: mockFlush });
+  const mockEntityManager = { persist: mockPersist, flush: mockFlush };
+
   beforeEach(async () => {
+    mockFlush.mockClear();
+    mockPersist.mockClear();
+
     const module = await Test.createTestingModule({
       providers: [
         UsersService,
@@ -30,11 +44,9 @@ describe('UsersService', () => {
           provide: UsersRepository,
           useValue: {
             findOne: jest.fn(),
-            findMany: jest.fn(),
             findByLogin: jest.fn(),
             create: jest.fn(),
-            update: jest.fn(),
-            delete: jest.fn(),
+            getEntityManager: jest.fn().mockReturnValue(mockEntityManager),
           },
         },
       ],
@@ -102,9 +114,7 @@ describe('UsersService', () => {
   describe('createUser', () => {
     it('should create a user with hashed password', async () => {
       repository.findOne.mockResolvedValue(null);
-      repository.create.mockImplementation((data) =>
-        Promise.resolve(createUserEntity(data)),
-      );
+      repository.create.mockImplementation((data) => createUserEntity(data));
 
       const result = await service.createUser({
         username: 'newuser',
@@ -120,6 +130,8 @@ describe('UsersService', () => {
           password: 'hashed_plaintext',
         }),
       );
+      expect(mockPersist).toHaveBeenCalled();
+      expect(mockFlush).toHaveBeenCalled();
     });
 
     it('should throw BadRequestException for banned username', async () => {
@@ -170,20 +182,13 @@ describe('UsersService', () => {
         .mockResolvedValueOnce(user) // find user by uuid
         .mockResolvedValueOnce(null) // username not taken
         .mockResolvedValueOnce(null); // email not taken
-      repository.update.mockResolvedValue([user]);
 
       await service.updateUser('abc', {
         username: 'updated',
         email: 'updated@test.com',
       });
 
-      expect(repository.update).toHaveBeenCalledWith(
-        { uuid: 'abc' },
-        expect.objectContaining({
-          username: 'updated',
-          email: 'updated@test.com',
-        }),
-      );
+      expect(mockFlush).toHaveBeenCalled();
     });
 
     it('should throw NotFoundException when user does not exist', async () => {
@@ -253,14 +258,14 @@ describe('UsersService', () => {
         username: user.username,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
-        deletedAt: user.deletedAt,
+        deletedAt: user.deletedAt ?? null,
       });
     });
   });
 
   describe('formatPrivateUser', () => {
     it('should return user with email and role but without password', () => {
-      const user = createUserEntity({ role: 'admin' });
+      const user = createUserEntity({ role: UserRole.ADMIN });
 
       const result = service.formatPrivateUser(user);
 
@@ -271,7 +276,7 @@ describe('UsersService', () => {
         role: 'admin',
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
-        deletedAt: user.deletedAt,
+        deletedAt: user.deletedAt ?? null,
       });
     });
   });

@@ -18,12 +18,8 @@ export class AuthService {
 
       if (rememberMe) {
         req.session.cookie.maxAge = REMEMBER_ME_SESSION_TIMEOUT_MS;
-        req.session.cookie.expires = new Date(
-          Date.now() + REMEMBER_ME_SESSION_TIMEOUT_MS,
-        );
       } else {
         req.session.cookie.maxAge = SESSION_TIMEOUT_MS;
-        req.session.cookie.expires = new Date(Date.now() + SESSION_TIMEOUT_MS);
       }
 
       return res.send(this.usersService.formatPrivateUser(req.user!));

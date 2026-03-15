@@ -1,13 +1,11 @@
+import { RequiredEntityData } from '@mikro-orm/core';
 import {
   GitHubProfileEntity,
   LinkedInProfileEntity,
   ProfileEntity,
 } from 'optimus-package';
 
-export const DEFAULT_PROFILE_DATA: Omit<
-  Partial<ProfileEntity>,
-  'uuid' | 'updatedAt'
-> = {
+export const DEFAULT_PROFILE_DATA: RequiredEntityData<ProfileEntity> = {
   firstName: 'John',
   lastName: 'Doe',
   title: 'Professional dwarves thrower',
@@ -18,10 +16,16 @@ export const DEFAULT_PROFILE_DATA: Omit<
   contactEmail: 'john.doe@example.com',
 };
 
-export const DEFAULT_LINKEDIN_PROFILE_DATA: Partial<LinkedInProfileEntity> = {
+export const DEFAULT_LINKEDIN_PROFILE_DATA: Omit<
+  RequiredEntityData<LinkedInProfileEntity>,
+  'profile'
+> = {
   slug: 'john-doe',
 };
 
-export const DEFAULT_GITHUB_PROFILE_DATA: Partial<GitHubProfileEntity> = {
-  username: 'torvalds',
+export const DEFAULT_GITHUB_PROFILE_DATA: Omit<
+  RequiredEntityData<GitHubProfileEntity>,
+  'profile'
+> = {
+  username: 'john-doe',
 };

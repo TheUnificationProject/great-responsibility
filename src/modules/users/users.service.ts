@@ -1,3 +1,4 @@
+import { wrap } from '@mikro-orm/core';
 import { BANNED_USERNAMES } from '@modules/users/users.constants';
 import { UsersRepository } from '@modules/users/users.repository';
 import {
@@ -7,7 +8,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import bcrypt from 'bcrypt';
-import { MinimalUser, PrivateUser, User, UserEntity } from 'optimus-package';
+import {
+  MinimalUser,
+  PrivateUser,
+  User,
+  UserEntity,
+  UserRole,
+} from 'optimus-package';
 
 const HASH_ROUNDS = 10;
 
@@ -63,10 +70,12 @@ export class UsersService {
 
     const hashedPassword = UsersService.hashPassword(data.password);
 
-    const user = await this.usersRepository.create({
+    const user = this.usersRepository.create({
       ...data,
       password: hashedPassword,
     });
+
+    await this.usersRepository.getEntityManager().persist(user).flush();
 
     return user;
   }
@@ -102,7 +111,9 @@ export class UsersService {
       newData.email = data.email;
     }
 
-    await this.usersRepository.update({ uuid }, newData);
+    wrap(user).assign(newData);
+
+    await this.usersRepository.getEntityManager().flush();
   }
 
   public formatMinimalUser(user: UserEntity): MinimalUser {
@@ -118,7 +129,7 @@ export class UsersService {
       username: user.username,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
-      deletedAt: user.deletedAt,
+      deletedAt: user.deletedAt ?? null,
     };
   }
 
@@ -127,10 +138,10 @@ export class UsersService {
       uuid: user.uuid,
       username: user.username,
       email: user.email,
-      role: user.role,
+      role: user.role as UserRole,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
-      deletedAt: user.deletedAt,
+      deletedAt: user.deletedAt ?? null,
     };
   }
 

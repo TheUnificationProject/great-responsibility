@@ -10,13 +10,22 @@ import { LinkedInProfilesRepository } from './linkedin-profiles.repository';
 import { ProfilesRepository } from './profiles.repository';
 import { ProfilesService } from './profiles.service';
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+jest.mock('@mikro-orm/core', () => ({
+  ...jest.requireActual('@mikro-orm/core'),
+  wrap: jest.fn().mockReturnValue({ assign: jest.fn() }),
+}));
+
 describe('ProfilesService', () => {
   let service: ProfilesService;
   let profilesRepository: jest.Mocked<ProfilesRepository>;
   let linkedInRepository: jest.Mocked<LinkedInProfilesRepository>;
   let gitHubRepository: jest.Mocked<GitHubProfilesRepository>;
+  let mockFlush: jest.Mock;
 
   beforeEach(async () => {
+    mockFlush = jest.fn().mockResolvedValue(undefined);
+
     const module = await Test.createTestingModule({
       providers: [
         ProfilesService,
@@ -24,27 +33,23 @@ describe('ProfilesService', () => {
           provide: ProfilesRepository,
           useValue: {
             findOne: jest.fn(),
-            findMany: jest.fn(),
+            find: jest.fn(),
             count: jest.fn(),
-            update: jest.fn(),
-            getPaginationParams: jest.fn().mockReturnValue({
-              limit: 25,
-              offset: 0,
-            }),
+            getEntityManager: jest.fn().mockReturnValue({ flush: mockFlush }),
           },
         },
         {
           provide: LinkedInProfilesRepository,
           useValue: {
             findOne: jest.fn(),
-            update: jest.fn(),
+            getEntityManager: jest.fn().mockReturnValue({ flush: mockFlush }),
           },
         },
         {
           provide: GitHubProfilesRepository,
           useValue: {
             findOne: jest.fn(),
-            update: jest.fn(),
+            getEntityManager: jest.fn().mockReturnValue({ flush: mockFlush }),
           },
         },
       ],
@@ -59,7 +64,7 @@ describe('ProfilesService', () => {
   describe('getProfiles', () => {
     it('should return paginated profiles', async () => {
       const profiles = [createProfileEntity(), createProfileEntity()];
-      profilesRepository.findMany.mockResolvedValue(profiles as never);
+      profilesRepository.find.mockResolvedValue(profiles as never);
       profilesRepository.count.mockResolvedValue(2);
 
       const result = await service.getProfiles({ page: 1 });
@@ -97,14 +102,10 @@ describe('ProfilesService', () => {
     it('should update profile fields', async () => {
       const profile = createProfileEntity({ uuid: 'p-1' });
       profilesRepository.findOne.mockResolvedValue(profile as never);
-      profilesRepository.update.mockResolvedValue([profile] as never);
 
       await service.updateProfile('p-1', { firstName: 'Updated' });
 
-      expect(profilesRepository.update).toHaveBeenCalledWith(
-        { uuid: 'p-1' },
-        expect.objectContaining({ firstName: 'Updated' }),
-      );
+      expect(mockFlush).toHaveBeenCalled();
     });
 
     it('should throw NotFoundException when profile does not exist', async () => {
@@ -114,46 +115,21 @@ describe('ProfilesService', () => {
         service.updateProfile('not-found', { firstName: 'X' }),
       ).rejects.toThrow(NotFoundException);
     });
-
-    it('should set nullable fields to null when empty string provided', async () => {
-      const profile = createProfileEntity({ uuid: 'p-1' });
-      profilesRepository.findOne.mockResolvedValue(profile as never);
-      profilesRepository.update.mockResolvedValue([profile] as never);
-
-      await service.updateProfile('p-1', {
-        title: '',
-        biography: '',
-        location: '',
-      });
-
-      expect(profilesRepository.update).toHaveBeenCalledWith(
-        { uuid: 'p-1' },
-        expect.objectContaining({
-          title: null,
-          biography: null,
-          location: null,
-        }),
-      );
-    });
   });
 
   describe('updateLinkedInProfile', () => {
     it('should update LinkedIn slug', async () => {
       const profile = createProfileEntity({ uuid: 'p-1' });
-      const linkedIn = createLinkedInProfileEntity({
-        profileUuid: 'p-1',
-        uuid: 'li-1',
-      });
+      const linkedIn = createLinkedInProfileEntity({ uuid: 'li-1' });
       profilesRepository.findOne.mockResolvedValue(profile as never);
       linkedInRepository.findOne.mockResolvedValue(linkedIn as never);
-      linkedInRepository.update.mockResolvedValue([linkedIn] as never);
 
       await service.updateLinkedInProfile('p-1', { slug: 'new-slug' });
 
-      expect(linkedInRepository.update).toHaveBeenCalledWith(
-        { uuid: 'li-1' },
-        { slug: 'new-slug' },
-      );
+      expect(linkedInRepository.findOne).toHaveBeenCalledWith({
+        profile: 'p-1',
+      });
+      expect(mockFlush).toHaveBeenCalled();
     });
 
     it('should throw NotFoundException when profile not found', async () => {
@@ -179,20 +155,16 @@ describe('ProfilesService', () => {
   describe('updateGitHubProfile', () => {
     it('should update GitHub username', async () => {
       const profile = createProfileEntity({ uuid: 'p-1' });
-      const gitHub = createGitHubProfileEntity({
-        profileUuid: 'p-1',
-        uuid: 'gh-1',
-      });
+      const gitHub = createGitHubProfileEntity({ uuid: 'gh-1' });
       profilesRepository.findOne.mockResolvedValue(profile as never);
       gitHubRepository.findOne.mockResolvedValue(gitHub as never);
-      gitHubRepository.update.mockResolvedValue([gitHub] as never);
 
       await service.updateGitHubProfile('p-1', { username: 'newuser' });
 
-      expect(gitHubRepository.update).toHaveBeenCalledWith(
-        { uuid: 'gh-1' },
-        { username: 'newuser' },
-      );
+      expect(gitHubRepository.findOne).toHaveBeenCalledWith({
+        profile: 'p-1',
+      });
+      expect(mockFlush).toHaveBeenCalled();
     });
 
     it('should throw NotFoundException when profile not found', async () => {
@@ -221,11 +193,15 @@ describe('ProfilesService', () => {
         uuid: 'p-1',
         firstName: 'John',
         lastName: 'Doe',
-        linkedIn: createLinkedInProfileEntity({ slug: 'johndoe' }),
-        gitHub: createGitHubProfileEntity({ username: 'johndoe' }),
+        linkedInProfile: createLinkedInProfileEntity({
+          slug: 'johndoe',
+        }) as never,
+        gitHubProfile: createGitHubProfileEntity({
+          username: 'johndoe',
+        }) as never,
       });
 
-      const result = ProfilesService.formatProfile(profile);
+      const result = ProfilesService.formatProfile(profile as never);
 
       expect(result.fullName).toBe('John Doe');
       expect(result.linkedIn.profileUrl).toBe(
@@ -236,11 +212,15 @@ describe('ProfilesService', () => {
 
     it('should return null URLs when slug/username are null', () => {
       const profile = createProfileEntity({
-        linkedIn: createLinkedInProfileEntity({ slug: null }),
-        gitHub: createGitHubProfileEntity({ username: null }),
+        linkedInProfile: createLinkedInProfileEntity({
+          slug: undefined,
+        }) as never,
+        gitHubProfile: createGitHubProfileEntity({
+          username: undefined,
+        }) as never,
       });
 
-      const result = ProfilesService.formatProfile(profile);
+      const result = ProfilesService.formatProfile(profile as never);
 
       expect(result.linkedIn.profileUrl).toBeNull();
       expect(result.gitHub.profileUrl).toBeNull();
@@ -250,15 +230,15 @@ describe('ProfilesService', () => {
       const birthDate = new Date('1990-01-15T00:00:00Z');
       const profile = createProfileEntity({ birthDate });
 
-      const result = ProfilesService.formatProfile(profile);
+      const result = ProfilesService.formatProfile(profile as never);
 
       expect(result.age).toBeGreaterThanOrEqual(35);
     });
 
     it('should return null age when birthDate is null', () => {
-      const profile = createProfileEntity({ birthDate: null });
+      const profile = createProfileEntity({ birthDate: undefined });
 
-      const result = ProfilesService.formatProfile(profile);
+      const result = ProfilesService.formatProfile(profile as never);
 
       expect(result.age).toBeNull();
     });

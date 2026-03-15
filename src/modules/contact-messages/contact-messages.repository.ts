@@ -1,18 +1,10 @@
-import { AbstractRepository } from '@modules/database/abstract.repository';
-import { DatabaseService } from '@modules/database/database.service';
+import { EntityManager, EntityRepository } from '@mikro-orm/core';
 import { Injectable } from '@nestjs/common';
-import {
-  ContactMessageEntity,
-  ContactMessageSchema,
-  contactMessageSchema,
-} from 'optimus-package';
+import { ContactMessageEntity } from 'optimus-package';
 
 @Injectable()
-export class ContactMessagesRepository extends AbstractRepository<
-  ContactMessageSchema,
-  ContactMessageEntity
-> {
-  constructor(databaseService: DatabaseService) {
-    super(databaseService, contactMessageSchema);
+export class ContactMessagesRepository extends EntityRepository<ContactMessageEntity> {
+  constructor(em: EntityManager) {
+    super(em, ContactMessageEntity);
   }
 }

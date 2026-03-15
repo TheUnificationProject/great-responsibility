@@ -1,4 +1,3 @@
-import { DatabaseModule } from '@modules/database/database.module';
 import { FirebaseModule } from '@modules/firebase/firebase.module';
 import { SkillsController } from '@modules/skills/skills.controller';
 import { SkillsRepository } from '@modules/skills/skills.repository';
@@ -9,6 +8,6 @@ import { Module } from '@nestjs/common';
 @Module({
   controllers: [SkillsController],
   providers: [SkillsRepository, SkillsSeeder, SkillsService],
-  imports: [DatabaseModule, FirebaseModule],
+  imports: [FirebaseModule],
 })
 export class SkillsModule {}

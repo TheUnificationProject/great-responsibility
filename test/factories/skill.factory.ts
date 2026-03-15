@@ -1,4 +1,4 @@
-import { SkillEntity } from 'optimus-package';
+import { SkillCategory, SkillEntity } from 'optimus-package';
 
 let counter = 0;
 
@@ -9,11 +9,11 @@ export function createSkillEntity(
   return {
     slug: `skill-${counter}`,
     label: `Skill ${counter}`,
-    iconUrl: null,
-    category: 'language',
+    iconUrl: undefined,
+    category: SkillCategory.OTHER,
     createdAt: new Date('2025-01-01T00:00:00Z'),
     updatedAt: new Date('2025-01-01T00:00:00Z'),
-    deletedAt: null,
+    deletedAt: undefined,
     ...overrides,
   };
 }

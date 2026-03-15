@@ -38,7 +38,7 @@
     "express": "^5.2.1",
     "express-session": "^1.19.0",
     "firebase-admin": "^13.6.0",
-    "optimus-package": "github:TheUnificationProject/optimus-package#refactor/add-mikro-orm",
+    "optimus-package": "github:TheUnificationProject/optimus-package",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "pg": "^8.16.3",

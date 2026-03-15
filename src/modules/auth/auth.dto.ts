@@ -14,7 +14,7 @@ import {
   USERNAME_MAX_LENGTH,
   USERNAME_MIN_LENGTH,
   USERNAME_REGEX,
-} from 'optimus-package/schemas/user.schema';
+} from 'optimus-package/entities/user.entity';
 
 export class SignInBody {
   @IsString()

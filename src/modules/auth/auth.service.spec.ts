@@ -21,7 +21,7 @@ function createPrivateUser(): PrivateUser {
     role: user.role,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
-    deletedAt: user.deletedAt,
+    deletedAt: user.deletedAt ?? null,
   };
 }
 

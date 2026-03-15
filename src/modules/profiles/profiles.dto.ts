@@ -22,7 +22,7 @@ import {
   LAST_NAME_MIN_LENGTH,
   LINKEDIN_SLUG_MAX_LENGTH,
   TITLE_MAX_LENGTH,
-} from 'optimus-package/schemas/profile.schema';
+} from 'optimus-package/entities/profile.entity';
 
 export class GetProfilesQuery extends PaginationQueryParams {}
 

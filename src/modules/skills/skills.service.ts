@@ -1,16 +1,14 @@
 import { ImageExtension, ImageMimeType } from '@/types';
+import { FilterQuery, RequiredEntityData } from '@mikro-orm/core';
 import { FirebaseStorageService } from '@modules/firebase/firebase-storage.service';
 import { SkillsRepository } from '@modules/skills/skills.repository';
 import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import { slugify } from '@utils/string';
-import { inArray, SQL } from 'drizzle-orm';
 import {
   PaginatedResult,
   Skill,
   SkillCategory,
   SkillEntity,
-  SkillSchema,
-  skillSchema,
 } from 'optimus-package';
 import sharp from 'sharp';
 
@@ -30,15 +28,16 @@ export class SkillsService {
       categories?: SkillCategory[];
     } = {},
   ): Promise<PaginatedResult<SkillEntity>> {
-    const { limit, offset } = this.skillsRepository.getPaginationParams(query);
+    const limit = query.limit ?? 50;
+    const offset = ((query.page ?? 1) - 1) * limit;
 
-    const where: SQL<SkillSchema> | undefined =
+    const where: FilterQuery<SkillEntity> =
       query.categories && query.categories.length > 0
-        ? (inArray(skillSchema.category, query.categories) as SQL<SkillSchema>)
-        : undefined;
+        ? { category: { $in: query.categories } }
+        : {};
 
     const [skills, count] = await Promise.all([
-      this.skillsRepository.findMany(where, { limit, offset }),
+      this.skillsRepository.find(where, { limit, offset }),
       this.skillsRepository.count(where),
     ]);
 
@@ -110,7 +109,11 @@ export class SkillsService {
       }
     }
 
-    const skill = await this.skillsRepository.create(_data);
+    const skill = this.skillsRepository.create(
+      _data as RequiredEntityData<SkillEntity>,
+    );
+
+    await this.skillsRepository.getEntityManager().persist(skill).flush();
 
     return skill;
   }
@@ -119,11 +122,11 @@ export class SkillsService {
     return {
       slug: skill.slug,
       label: skill.label,
-      iconUrl: skill.iconUrl,
+      iconUrl: skill.iconUrl ?? null,
       category: skill.category,
       createdAt: skill.createdAt,
       updatedAt: skill.updatedAt,
-      deletedAt: skill.deletedAt,
+      deletedAt: skill.deletedAt ?? null,
     };
   }
 }

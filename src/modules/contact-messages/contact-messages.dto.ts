@@ -11,7 +11,7 @@ import {
   FIRST_NAME_MAX_LENGTH,
   LAST_NAME_MAX_LENGTH,
   ORGANIZATION_NAME_MAX_LENGTH,
-} from 'optimus-package/schemas/contact-message.schema';
+} from 'optimus-package/entities/contact-message.entity';
 
 export class SendMessageBody {
   @IsString()

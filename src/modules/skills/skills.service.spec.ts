@@ -3,6 +3,7 @@ import { FirebaseStorageService } from '@modules/firebase/firebase-storage.servi
 import { FileUploadResult } from '@modules/firebase/firebase.types';
 import { ConflictException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { SkillCategory } from 'optimus-package';
 import { SkillsRepository } from './skills.repository';
 import { SkillsService } from './skills.service';
 
@@ -20,7 +21,14 @@ describe('SkillsService', () => {
   let repository: jest.Mocked<SkillsRepository>;
   let firebaseStorageService: jest.Mocked<FirebaseStorageService>;
 
+  const mockFlush = jest.fn().mockResolvedValue(undefined);
+  const mockPersist = jest.fn().mockReturnValue({ flush: mockFlush });
+  const mockEntityManager = { persist: mockPersist };
+
   beforeEach(async () => {
+    mockFlush.mockClear();
+    mockPersist.mockClear();
+
     const module = await Test.createTestingModule({
       providers: [
         SkillsService,
@@ -28,13 +36,10 @@ describe('SkillsService', () => {
           provide: SkillsRepository,
           useValue: {
             findOne: jest.fn(),
-            findMany: jest.fn(),
+            find: jest.fn(),
             create: jest.fn(),
             count: jest.fn(),
-            getPaginationParams: jest.fn().mockReturnValue({
-              limit: 50,
-              offset: 0,
-            }),
+            getEntityManager: jest.fn().mockReturnValue(mockEntityManager),
           },
         },
         {
@@ -54,7 +59,7 @@ describe('SkillsService', () => {
   describe('getSkills', () => {
     it('should return paginated skills', async () => {
       const skills = [createSkillEntity(), createSkillEntity()];
-      repository.findMany.mockResolvedValue(skills);
+      repository.find.mockResolvedValue(skills);
       repository.count.mockResolvedValue(2);
 
       const result = await service.getSkills({ page: 1 });
@@ -69,13 +74,17 @@ describe('SkillsService', () => {
     });
 
     it('should filter by categories when provided', async () => {
-      repository.findMany.mockResolvedValue([]);
+      repository.find.mockResolvedValue([]);
       repository.count.mockResolvedValue(0);
 
-      await service.getSkills({ categories: ['language', 'framework'] });
+      await service.getSkills({
+        categories: [SkillCategory.LANGUAGE, SkillCategory.FRAMEWORK],
+      });
 
-      expect(repository.findMany).toHaveBeenCalledWith(
-        expect.anything(),
+      expect(repository.find).toHaveBeenCalledWith(
+        {
+          category: { $in: [SkillCategory.LANGUAGE, SkillCategory.FRAMEWORK] },
+        },
         expect.objectContaining({ limit: 50, offset: 0 }),
       );
     });
@@ -84,13 +93,11 @@ describe('SkillsService', () => {
   describe('createSkill', () => {
     it('should create a skill with generated slug', async () => {
       repository.findOne.mockResolvedValue(null);
-      repository.create.mockImplementation((data) =>
-        Promise.resolve(createSkillEntity(data)),
-      );
+      repository.create.mockImplementation((data) => createSkillEntity(data));
 
       const result = await service.createSkill({
         label: 'TypeScript',
-        category: 'language',
+        category: SkillCategory.LANGUAGE,
         iconUrl: null,
       });
 
@@ -98,9 +105,11 @@ describe('SkillsService', () => {
       expect(repository.create).toHaveBeenCalledWith(
         expect.objectContaining({
           label: 'TypeScript',
-          category: 'language',
+          category: SkillCategory.LANGUAGE,
         }),
       );
+      expect(mockPersist).toHaveBeenCalled();
+      expect(mockFlush).toHaveBeenCalled();
     });
 
     it('should throw ConflictException when slug already exists', async () => {
@@ -109,7 +118,7 @@ describe('SkillsService', () => {
       await expect(
         service.createSkill({
           label: 'Existing',
-          category: 'language',
+          category: SkillCategory.LANGUAGE,
           iconUrl: null,
         }),
       ).rejects.toThrow(ConflictException);
@@ -117,16 +126,14 @@ describe('SkillsService', () => {
 
     it('should upload icon when iconBuffer is provided', async () => {
       repository.findOne.mockResolvedValue(null);
-      repository.create.mockImplementation((data) =>
-        Promise.resolve(createSkillEntity(data)),
-      );
+      repository.create.mockImplementation((data) => createSkillEntity(data));
       firebaseStorageService.uploadImage.mockResolvedValue({
         url: 'https://storage.example.com/icon.webp',
       } as FileUploadResult);
 
       await service.createSkill({
         label: 'WithIcon',
-        category: 'tool',
+        category: SkillCategory.TOOL,
         iconBuffer: Buffer.from('png-data'),
       });
 
@@ -140,13 +147,11 @@ describe('SkillsService', () => {
 
     it('should use iconUrl directly when provided', async () => {
       repository.findOne.mockResolvedValue(null);
-      repository.create.mockImplementation((data) =>
-        Promise.resolve(createSkillEntity(data)),
-      );
+      repository.create.mockImplementation((data) => createSkillEntity(data));
 
       await service.createSkill({
         label: 'WithUrl',
-        category: 'tool',
+        category: SkillCategory.TOOL,
         iconUrl: 'https://example.com/icon.png',
       });
 
@@ -164,7 +169,7 @@ describe('SkillsService', () => {
       const skill = createSkillEntity({
         slug: 'ts',
         label: 'TypeScript',
-        category: 'language',
+        category: SkillCategory.LANGUAGE,
       });
 
       const result = SkillsService.formatSkill(skill);
@@ -173,10 +178,10 @@ describe('SkillsService', () => {
         slug: 'ts',
         label: 'TypeScript',
         iconUrl: null,
-        category: 'language',
+        category: SkillCategory.LANGUAGE,
         createdAt: skill.createdAt,
         updatedAt: skill.updatedAt,
-        deletedAt: skill.deletedAt,
+        deletedAt: null,
       });
     });
   });

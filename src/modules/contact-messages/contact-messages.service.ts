@@ -1,3 +1,4 @@
+import { RequiredEntityData } from '@mikro-orm/core';
 import { ContactMessagesRepository } from '@modules/contact-messages/contact-messages.repository';
 import { Injectable } from '@nestjs/common';
 import { ContactMessageEntity } from 'optimus-package';
@@ -9,18 +10,14 @@ export class ContactMessagesService {
   ) {}
 
   public async createContactMessage(
-    data: Omit<ContactMessageEntity, 'uuid' | 'createdAt'>,
+    data: RequiredEntityData<ContactMessageEntity>,
   ): Promise<ContactMessageEntity> {
-    const contactMessage = await this.contactMessagesRepository.create({
-      profileUuid: data.profileUuid,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      organizationName: data.organizationName,
-      email: data.email,
-      phoneNumber: data.phoneNumber,
-      message: data.message,
-      lang: data.lang,
-    });
+    const contactMessage = this.contactMessagesRepository.create(data);
+
+    await this.contactMessagesRepository
+      .getEntityManager()
+      .persist(contactMessage)
+      .flush();
 
     return contactMessage;
   }

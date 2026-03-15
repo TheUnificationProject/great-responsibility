@@ -6,8 +6,13 @@ import { ContactMessagesService } from './contact-messages.service';
 describe('ContactMessagesService', () => {
   let service: ContactMessagesService;
   let repository: jest.Mocked<ContactMessagesRepository>;
+  let mockFlush: jest.Mock;
+  let mockPersist: jest.Mock;
 
   beforeEach(async () => {
+    mockFlush = jest.fn().mockResolvedValue(undefined);
+    mockPersist = jest.fn().mockReturnValue({ flush: mockFlush });
+
     const module = await Test.createTestingModule({
       providers: [
         ContactMessagesService,
@@ -15,6 +20,9 @@ describe('ContactMessagesService', () => {
           provide: ContactMessagesRepository,
           useValue: {
             create: jest.fn(),
+            getEntityManager: jest
+              .fn()
+              .mockReturnValue({ persist: mockPersist }),
           },
         },
       ],
@@ -27,7 +35,7 @@ describe('ContactMessagesService', () => {
   describe('createContactMessage', () => {
     it('should create and return a contact message', async () => {
       const messageData = {
-        profileUuid: 'p-1',
+        profile: 'p-1',
         firstName: 'Jane',
         lastName: 'Doe',
         organizationName: 'Acme',
@@ -37,9 +45,9 @@ describe('ContactMessagesService', () => {
         lang: 'en',
       };
       const createdMessage = createContactMessageEntity(messageData);
-      repository.create.mockResolvedValue(createdMessage);
+      repository.create.mockReturnValue(createdMessage as never);
 
-      const result = await service.createContactMessage(messageData);
+      const result = await service.createContactMessage(messageData as never);
 
       expect(result).toEqual(createdMessage);
       expect(repository.create).toHaveBeenCalledWith(
@@ -50,26 +58,28 @@ describe('ContactMessagesService', () => {
           message: 'Hello!',
         }),
       );
+      expect(mockPersist).toHaveBeenCalledWith(createdMessage);
+      expect(mockFlush).toHaveBeenCalled();
     });
 
     it('should create a message without optional fields', async () => {
       const messageData = {
-        profileUuid: 'p-1',
+        profile: 'p-1',
         firstName: 'John',
         lastName: 'Doe',
-        organizationName: null,
+        organizationName: undefined,
         email: 'john@test.com',
-        phoneNumber: null,
+        phoneNumber: undefined,
         message: 'Hi there',
         lang: 'fr',
       };
       const createdMessage = createContactMessageEntity(messageData);
-      repository.create.mockResolvedValue(createdMessage);
+      repository.create.mockReturnValue(createdMessage as never);
 
-      const result = await service.createContactMessage(messageData);
+      const result = await service.createContactMessage(messageData as never);
 
-      expect(result.organizationName).toBeNull();
-      expect(result.phoneNumber).toBeNull();
+      expect(result.organizationName).toBeUndefined();
+      expect(result.phoneNumber).toBeUndefined();
     });
   });
 });

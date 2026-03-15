@@ -1,234 +1,236 @@
-import { SkillEntity } from 'optimus-package';
+import { EntityDTO } from '@mikro-orm/core';
+import { SkillCategory, SkillEntity } from 'optimus-package';
 import { join } from 'path';
 
 const ASSETS_DIR = join(process.cwd(), 'assets/skills/icons');
 
 export type SkillSeedData = Omit<
-  SkillEntity,
+  EntityDTO<SkillEntity>,
   'slug' | 'createdAt' | 'iconUrl' | 'updatedAt' | 'deletedAt'
 > &
   (
-    | { iconUrl: SkillEntity['iconUrl']; iconPath?: never }
+    | { iconUrl: string; iconPath?: never }
     | { iconPath: string; iconUrl?: never }
+    | { iconUrl?: never; iconPath?: never }
   );
 
 export const DEFAULT_SKILLS: SkillSeedData[] = [
   // Languages
   {
     label: 'TypeScript',
-    category: 'language',
+    category: SkillCategory.LANGUAGE,
     iconPath: join(ASSETS_DIR, 'typescript-original.svg'),
   },
   {
     label: 'JavaScript',
-    category: 'language',
+    category: SkillCategory.LANGUAGE,
     iconPath: join(ASSETS_DIR, 'javascript-original.svg'),
   },
   {
     label: 'Java',
-    category: 'language',
+    category: SkillCategory.LANGUAGE,
     iconPath: join(ASSETS_DIR, 'java-original-wordmark.svg'),
   },
   {
     label: 'Python',
-    category: 'language',
+    category: SkillCategory.LANGUAGE,
     iconPath: join(ASSETS_DIR, 'python-original.svg'),
   },
   {
     label: 'PHP',
-    category: 'language',
+    category: SkillCategory.LANGUAGE,
     iconPath: join(ASSETS_DIR, 'php-original.svg'),
   },
   {
     label: 'C',
-    category: 'language',
+    category: SkillCategory.LANGUAGE,
     iconPath: join(ASSETS_DIR, 'c-original.svg'),
   },
   {
     label: 'C#',
-    category: 'language',
+    category: SkillCategory.LANGUAGE,
     iconPath: join(ASSETS_DIR, 'csharp-original.svg'),
   },
   {
     label: 'SQL',
-    category: 'language',
+    category: SkillCategory.LANGUAGE,
     iconPath: join(ASSETS_DIR, 'sql.jpg'),
   },
 
   // Runtime / Tools
   {
     label: 'Node.js',
-    category: 'tool',
+    category: SkillCategory.TOOL,
     iconPath: join(ASSETS_DIR, 'nodejs-original.svg'),
   },
   {
     label: 'Docker',
-    category: 'devops',
+    category: SkillCategory.DEVOPS,
     iconPath: join(ASSETS_DIR, 'docker-original.svg'),
   },
   {
     label: 'Nginx',
-    category: 'devops',
+    category: SkillCategory.DEVOPS,
     iconPath: join(ASSETS_DIR, 'nginx-original.svg'),
   },
 
   // Frameworks
   {
     label: 'React',
-    category: 'framework',
+    category: SkillCategory.FRAMEWORK,
     iconPath: join(ASSETS_DIR, 'react-original.svg'),
   },
   {
     label: 'Next.js',
-    category: 'framework',
+    category: SkillCategory.FRAMEWORK,
     iconPath: join(ASSETS_DIR, 'nextjs-original.svg'),
   },
   {
     label: 'NestJS',
-    category: 'framework',
+    category: SkillCategory.FRAMEWORK,
     iconPath: join(ASSETS_DIR, 'nestjs-original.svg'),
   },
   {
     label: 'Express',
-    category: 'framework',
+    category: SkillCategory.FRAMEWORK,
     iconPath: join(ASSETS_DIR, 'express-original.svg'),
   },
   {
     label: 'Laravel',
-    category: 'framework',
+    category: SkillCategory.FRAMEWORK,
     iconPath: join(ASSETS_DIR, 'laravel-original.svg'),
   },
   {
     label: 'Django',
-    category: 'framework',
+    category: SkillCategory.FRAMEWORK,
     iconPath: join(ASSETS_DIR, 'django-plain-wordmark.svg'),
   },
 
   // Libraries
   {
     label: 'discord.js',
-    category: 'library',
+    category: SkillCategory.LIBRARY,
     iconPath: join(ASSETS_DIR, 'discordjs-original.svg'),
   },
   {
     label: 'Prisma',
-    category: 'library',
+    category: SkillCategory.LIBRARY,
     iconPath: join(ASSETS_DIR, 'prisma-original.svg'),
   },
   {
     label: 'Drizzle',
-    category: 'library',
-    iconUrl: null,
+    category: SkillCategory.LIBRARY,
   },
   {
     label: 'Mongoose',
-    category: 'library',
+    category: SkillCategory.LIBRARY,
     iconPath: join(ASSETS_DIR, 'mongoose-original.svg'),
   },
 
   // Databases
   {
     label: 'PostgreSQL',
-    category: 'database',
+    category: SkillCategory.DATABASE,
     iconPath: join(ASSETS_DIR, 'postgresql-original.svg'),
   },
   {
     label: 'MySQL',
-    category: 'database',
+    category: SkillCategory.DATABASE,
     iconPath: join(ASSETS_DIR, 'mysql-original.svg'),
   },
   {
     label: 'MariaDB',
-    category: 'database',
+    category: SkillCategory.DATABASE,
     iconPath: join(ASSETS_DIR, 'mariadb-original.svg'),
   },
   {
     label: 'MongoDB',
-    category: 'database',
+    category: SkillCategory.DATABASE,
     iconPath: join(ASSETS_DIR, 'mongodb-original.svg'),
   },
   {
     label: 'Redis',
-    category: 'database',
+    category: SkillCategory.DATABASE,
     iconPath: join(ASSETS_DIR, 'redis-original.svg'),
   },
   {
     label: 'Elasticsearch',
-    category: 'database',
+    category: SkillCategory.DATABASE,
     iconPath: join(ASSETS_DIR, 'elasticsearch-original.svg'),
   },
 
   // Front styling
   {
     label: 'HTML',
-    category: 'language',
+    category: SkillCategory.LANGUAGE,
     iconPath: join(ASSETS_DIR, 'html5-original.svg'),
   },
   {
     label: 'CSS',
-    category: 'language',
+    category: SkillCategory.LANGUAGE,
     iconPath: join(ASSETS_DIR, 'css3-original.svg'),
   },
   {
     label: 'Sass',
-    category: 'library',
+    category: SkillCategory.LIBRARY,
     iconPath: join(ASSETS_DIR, 'sass-original.svg'),
   },
   {
     label: 'Tailwind CSS',
-    category: 'library',
+    category: SkillCategory.LIBRARY,
     iconPath: join(ASSETS_DIR, 'tailwindcss-original.svg'),
   },
   {
     label: 'Bootstrap',
-    category: 'library',
+    category: SkillCategory.LIBRARY,
     iconPath: join(ASSETS_DIR, 'bootstrap-original.svg'),
   },
 
   // Versioning / Platforms
   {
     label: 'Git',
-    category: 'tool',
+    category: SkillCategory.TOOL,
     iconPath: join(ASSETS_DIR, 'git-original.svg'),
   },
   {
     label: 'GitHub',
-    category: 'tool',
+    category: SkillCategory.TOOL,
     iconPath: join(ASSETS_DIR, 'github-original.svg'),
   },
   {
     label: 'GitLab',
-    category: 'tool',
+    category: SkillCategory.TOOL,
     iconPath: join(ASSETS_DIR, 'gitlab-original.svg'),
   },
   {
     label: 'Bitbucket',
-    category: 'tool',
+    category: SkillCategory.TOOL,
     iconPath: join(ASSETS_DIR, 'bitbucket-original.svg'),
   },
 
   // Testing / Quality
   {
     label: 'ESLint',
-    category: 'tool',
+    category: SkillCategory.TOOL,
     iconPath: join(ASSETS_DIR, 'eslint-original.svg'),
   },
   {
     label: 'Prettier',
-    category: 'tool',
-    iconUrl: null,
+    category: SkillCategory.TOOL,
   },
 
   // Cloud / Deploy
   {
     label: 'Vercel',
-    category: 'cloud',
-    iconUrl: null,
+    category: SkillCategory.CLOUD,
   },
 
   // Soft skills
-  { label: 'Communication', category: 'softskill', iconUrl: null },
-  { label: 'Rigueur', category: 'softskill', iconUrl: null },
-  { label: 'Autonomie', category: 'softskill', iconUrl: null },
-  { label: "Esprit d'équipe", category: 'softskill', iconUrl: null },
+  { label: 'Communication', category: SkillCategory.SOFTSKILL },
+  { label: 'Rigueur', category: SkillCategory.SOFTSKILL },
+  { label: 'Autonomie', category: SkillCategory.SOFTSKILL },
+  {
+    label: "Esprit d'équipe",
+    category: SkillCategory.SOFTSKILL,
+  },
 ] as const;

@@ -1,14 +1,10 @@
-import { AbstractRepository } from '@modules/database/abstract.repository';
-import { DatabaseService } from '@modules/database/database.service';
+import { EntityManager, EntityRepository } from '@mikro-orm/core';
 import { Injectable } from '@nestjs/common';
-import { SkillEntity, SkillSchema, skillSchema } from 'optimus-package';
+import { SkillEntity } from 'optimus-package';
 
 @Injectable()
-export class SkillsRepository extends AbstractRepository<
-  SkillSchema,
-  SkillEntity
-> {
-  constructor(databaseService: DatabaseService) {
-    super(databaseService, skillSchema);
+export class SkillsRepository extends EntityRepository<SkillEntity> {
+  constructor(em: EntityManager) {
+    super(em, SkillEntity);
   }
 }

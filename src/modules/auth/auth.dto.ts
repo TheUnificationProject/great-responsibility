@@ -14,18 +14,18 @@ import {
   USERNAME_MAX_LENGTH,
   USERNAME_MIN_LENGTH,
   USERNAME_REGEX,
-} from 'optimus-package/schemas/user.schema';
+} from 'optimus-package/entities/user.entity';
 
 export class SignInBody {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({ name: 'login', type: String, required: true })
-  login: string;
+  login!: string;
 
   @IsString()
   @IsNotEmpty()
   @ApiProperty({ name: 'password', type: String, required: true })
-  password: string;
+  password!: string;
 
   @IsBoolean()
   @IsOptional()
@@ -47,17 +47,17 @@ export class SignUpBody {
       "username can only contain letters (a-z, A-Z), digits (0-9), and special characters (._-')",
   })
   @ApiProperty({ name: 'username', type: String, required: true })
-  username: string;
+  username!: string;
 
   @IsString()
   @IsEmail()
   @IsNotEmpty()
   @ApiProperty({ name: 'email', type: String, required: true })
-  email: string;
+  email!: string;
 
   @IsString()
   @IsStrongPassword()
   @IsNotEmpty()
   @ApiProperty({ name: 'password', type: String, required: true })
-  password: string;
+  password!: string;
 }

@@ -3,7 +3,8 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsArray, IsIn, IsOptional } from 'class-validator';
 import { SkillCategory } from 'optimus-package';
-import { CATEGORIES } from 'optimus-package/schemas/skill.schema';
+
+const CATEGORIES = Object.values(SkillCategory);
 
 export class GetSkillsQuery extends PaginationQueryParams {
   @IsOptional()

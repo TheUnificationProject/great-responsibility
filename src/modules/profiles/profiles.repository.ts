@@ -1,92 +1,76 @@
 import {
-  AbstractRepository,
+  EntityManager,
+  EntityRepository,
+  FilterQuery,
+  FindAllOptions,
+  FindOneOptions,
   FindOptions,
-  WhereClause,
-} from '@modules/database/abstract.repository';
-import { DatabaseService } from '@modules/database/database.service';
+  Loaded,
+} from '@mikro-orm/core';
 import { Injectable } from '@nestjs/common';
-import { and, eq } from 'drizzle-orm';
-import {
-  gitHubProfileSchema,
-  linkedInProfileSchema,
-  ProfileEntity,
-  ProfileSchema,
-  profileSchema,
-} from 'optimus-package';
+import { ProfileEntity } from 'optimus-package';
+
+const POPULATE = ['linkedInProfile', 'gitHubProfile'] as const;
 
 @Injectable()
-export class ProfilesRepository extends AbstractRepository<
-  ProfileSchema,
-  ProfileEntity
-> {
-  protected readonly MAX_DATA_PER_PAGE = 25;
-
-  constructor(databaseService: DatabaseService) {
-    super(databaseService, profileSchema);
+export class ProfilesRepository extends EntityRepository<ProfileEntity> {
+  constructor(em: EntityManager) {
+    super(em, ProfileEntity);
   }
 
-  override async findOne(
-    where: WhereClause<ProfileSchema>,
-  ): Promise<Nullable<ProfileEntity>> {
-    const query = this.db
-      .select({
-        profile: profileSchema,
-        linkedIn: linkedInProfileSchema,
-        gitHub: gitHubProfileSchema,
-      })
-      .from(profileSchema)
-      .where(and(...this.buildConditions(where)))
-      .limit(1)
-      .leftJoin(
-        linkedInProfileSchema,
-        eq(profileSchema.uuid, linkedInProfileSchema.profileUuid),
-      )
-      .leftJoin(
-        gitHubProfileSchema,
-        eq(profileSchema.uuid, gitHubProfileSchema.profileUuid),
-      );
-
-    const result = (await query)[0] || null;
-
-    if (!result) return null;
-
-    return {
-      ...result.profile,
-      linkedIn: result.linkedIn,
-      gitHub: result.gitHub,
-    } as ProfileEntity;
+  override findOne<
+    Hint extends string = never,
+    Fields extends string = '*',
+    Excludes extends string = never,
+  >(
+    where: FilterQuery<ProfileEntity>,
+    options?: FindOneOptions<ProfileEntity, Hint, Fields, Excludes>,
+  ): Promise<Loaded<ProfileEntity, Hint, Fields, Excludes> | null> {
+    return super.findOne(where, {
+      ...options,
+      populate: [
+        ...POPULATE,
+        ...(Array.isArray(options?.populate)
+          ? (options.populate as string[])
+          : []),
+      ] as never,
+    });
   }
 
-  override async findMany(
-    where?: Nullable<WhereClause<ProfileSchema>>,
-    options: FindOptions<true> = {},
-  ): Promise<ProfileEntity[]> {
-    const { offset, limit } = options;
+  override find<
+    Hint extends string = never,
+    Fields extends string = '*',
+    Excludes extends string = never,
+  >(
+    where: FilterQuery<ProfileEntity>,
+    options?: FindOptions<ProfileEntity, Hint, Fields, Excludes>,
+  ): Promise<Loaded<ProfileEntity, Hint, Fields, Excludes>[]> {
+    return super.find(where, {
+      ...options,
+      populate: [
+        ...POPULATE,
+        ...(Array.isArray(options?.populate)
+          ? (options.populate as string[])
+          : []),
+      ] as never,
+    });
+  }
 
-    const query = this.db
-      .select({
-        profile: profileSchema,
-        linkedIn: linkedInProfileSchema,
-        gitHub: gitHubProfileSchema,
-      })
-      .from(profileSchema)
-      .where(and(...this.buildConditions(where)))
-      .leftJoin(
-        linkedInProfileSchema,
-        eq(profileSchema.uuid, linkedInProfileSchema.profileUuid),
-      )
-      .leftJoin(
-        gitHubProfileSchema,
-        eq(profileSchema.uuid, gitHubProfileSchema.profileUuid),
-      )
-      .$dynamic();
-
-    const results = await this.withPagination(query, offset, limit);
-
-    return results.map((result) => ({
-      ...result.profile,
-      linkedIn: result.linkedIn,
-      gitHub: result.gitHub,
-    })) as ProfileEntity[];
+  override findAll<
+    Hint extends string = never,
+    Fields extends string = '*',
+    Excludes extends string = never,
+  >(
+    options?: FindAllOptions<ProfileEntity, Hint, Fields, Excludes>,
+  ): Promise<Loaded<ProfileEntity, Hint, Fields, Excludes>[]> {
+    return super.findAll({
+      ...options,
+      populate: [
+        ...POPULATE,
+        ...(Array.isArray(options?.populate)
+          ? (options.populate as string[])
+          : []),
+      ] as never,
+    });
   }
 }

@@ -1,3 +1,4 @@
+import { RequiredEntityData, wrap } from '@mikro-orm/core';
 import { GitHubProfilesRepository } from '@modules/profiles/github-profiles.repository';
 import { LinkedInProfilesRepository } from '@modules/profiles/linkedin-profiles.repository';
 import { ProfilesRepository } from '@modules/profiles/profiles.repository';
@@ -9,6 +10,8 @@ import {
   Profile,
   ProfileEntity,
 } from 'optimus-package';
+
+const MAX_DATA_PER_PAGE = 25;
 
 @Injectable()
 export class ProfilesService {
@@ -24,11 +27,11 @@ export class ProfilesService {
       page?: number;
     } = {},
   ): Promise<PaginatedResult<ProfileEntity>> {
-    const { limit, offset } =
-      this.profilesRepository.getPaginationParams(query);
+    const limit = Math.min(query.limit ?? MAX_DATA_PER_PAGE, MAX_DATA_PER_PAGE);
+    const offset = ((query.page ?? 1) - 1) * limit;
 
     const [profiles, count] = await Promise.all([
-      this.profilesRepository.findMany({}, { limit, offset }),
+      this.profilesRepository.find({}, { limit, offset }),
       this.profilesRepository.count(),
     ]);
 
@@ -44,8 +47,9 @@ export class ProfilesService {
   }
 
   public async getProfileByUuid(profileUuid: string): Promise<ProfileEntity> {
-    const profile: Nullable<ProfileEntity> =
-      await this.profilesRepository.findOne({ uuid: profileUuid });
+    const profile = await this.profilesRepository.findOne({
+      uuid: profileUuid,
+    });
 
     if (!profile) throw new NotFoundException('Profile not found');
 
@@ -54,82 +58,55 @@ export class ProfilesService {
 
   public async updateProfile(
     profileUuid: string,
-    data: Partial<
-      Omit<ProfileEntity, 'uuid' | 'linkedIn' | 'gitHub' | 'updatedAt'>
-    >,
+    data: Partial<RequiredEntityData<ProfileEntity>>,
   ): Promise<void> {
-    const profile: Nullable<ProfileEntity> =
-      await this.profilesRepository.findOne({
-        uuid: profileUuid,
-      });
+    const profile = await this.profilesRepository.findOne({
+      uuid: profileUuid,
+    });
     if (!profile) throw new NotFoundException('Profile not found');
 
-    const newData: Partial<Omit<ProfileEntity, 'linkedIn' | 'gitHub'>> = {};
-    if (data.firstName) newData.firstName = data.firstName;
-    if (data.lastName) newData.lastName = data.lastName;
-    if (data.title !== undefined) newData.title = data.title || null;
-    if (data.biography !== undefined)
-      newData.biography = data.biography || null;
-    if (data.birthDate !== undefined)
-      newData.birthDate = data.birthDate ? new Date(data.birthDate) : null;
-    if (data.location !== undefined) newData.location = data.location || null;
-    if (data.contactEmail !== undefined)
-      newData.contactEmail = data.contactEmail || null;
-    if (data.contactPhoneNumber !== undefined)
-      newData.contactPhoneNumber = data.contactPhoneNumber || null;
+    wrap(profile).assign(data);
 
-    await this.profilesRepository.update({ uuid: profile.uuid }, newData);
+    await this.profilesRepository.getEntityManager().flush();
   }
 
   public async updateLinkedInProfile(
     profileUuid: string,
-    data: Partial<
-      Omit<LinkedInProfileEntity, 'uuid' | 'profileUuid' | 'updatedAt'>
-    >,
+    data: Partial<RequiredEntityData<LinkedInProfileEntity>>,
   ): Promise<void> {
     const [profile, linkedInProfile] = await Promise.all([
       this.profilesRepository.findOne({ uuid: profileUuid }),
-      this.linkedInProfileRepository.findOne({ profileUuid }),
+      this.linkedInProfileRepository.findOne({ profile: profileUuid }),
     ]);
 
     if (!profile) throw new NotFoundException('Profile not found');
     if (!linkedInProfile)
       throw new NotFoundException('LinkedIn profile not found');
 
-    const newData: Partial<LinkedInProfileEntity> = {};
-    if (data.slug !== undefined) newData.slug = data.slug || null;
+    wrap(linkedInProfile).assign(data);
 
-    await this.linkedInProfileRepository.update(
-      { uuid: linkedInProfile.uuid },
-      newData,
-    );
+    await this.linkedInProfileRepository.getEntityManager().flush();
   }
 
   public async updateGitHubProfile(
     profileUuid: string,
-    data: Partial<
-      Omit<GitHubProfileEntity, 'uuid' | 'profileUuid' | 'updatedAt'>
-    >,
+    data: Partial<RequiredEntityData<GitHubProfileEntity>>,
   ): Promise<void> {
     const [profile, gitHubProfile] = await Promise.all([
       this.profilesRepository.findOne({ uuid: profileUuid }),
-      this.gitHubProfileRepository.findOne({ profileUuid }),
+      this.gitHubProfileRepository.findOne({ profile: profileUuid }),
     ]);
 
     if (!profile) throw new NotFoundException('Profile not found');
     if (!gitHubProfile) throw new NotFoundException('GitHub profile not found');
 
-    const newData: Partial<GitHubProfileEntity> = {};
-    if (data.username !== undefined) newData.username = data.username || null;
+    wrap(gitHubProfile).assign(data);
 
-    await this.gitHubProfileRepository.update(
-      { uuid: gitHubProfile.uuid },
-      newData,
-    );
+    await this.gitHubProfileRepository.getEntityManager().flush();
   }
 
   public static formatProfile(profile: ProfileEntity): Profile {
-    const formatted: Profile = {
+    return {
       uuid: profile.uuid,
       firstName: profile.firstName,
       lastName: profile.lastName,
@@ -137,28 +114,30 @@ export class ProfilesService {
         profile.firstName,
         profile.lastName,
       ),
-      title: profile.title,
-      biography: profile.biography,
+      title: profile.title ?? null,
+      biography: profile.biography ?? null,
       age: profile.birthDate
         ? ProfilesService.calculateAge(profile.birthDate)
         : null,
-      location: profile.location,
-      contactEmail: profile.contactEmail,
-      contactPhoneNumber: profile.contactPhoneNumber,
+      location: profile.location ?? null,
+      contactEmail: profile.contactEmail ?? null,
+      contactPhoneNumber: profile.contactPhoneNumber ?? null,
       linkedIn: {
-        profileUrl: profile.linkedIn.slug
-          ? ProfilesService.formatLinkedInProfileUrl(profile.linkedIn.slug)
+        profileUrl: profile.linkedInProfile?.slug
+          ? ProfilesService.formatLinkedInProfileUrl(
+              profile.linkedInProfile.slug,
+            )
           : null,
       },
       gitHub: {
-        profileUrl: profile.gitHub.username
-          ? ProfilesService.formatGitHubProfileUrl(profile.gitHub.username)
+        profileUrl: profile.gitHubProfile?.username
+          ? ProfilesService.formatGitHubProfileUrl(
+              profile.gitHubProfile.username,
+            )
           : null,
       },
       updatedAt: profile.updatedAt,
     };
-
-    return formatted;
   }
 
   private static formatFullName(

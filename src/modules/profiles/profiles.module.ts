@@ -1,5 +1,4 @@
 import { ContactMessagesModule } from '@modules/contact-messages/contact-messages.module';
-import { DatabaseModule } from '@modules/database/database.module';
 import { GitHubProfilesRepository } from '@modules/profiles/github-profiles.repository';
 import { LinkedInProfilesRepository } from '@modules/profiles/linkedin-profiles.repository';
 import { ProfilesController } from '@modules/profiles/profiles.controller';
@@ -17,6 +16,6 @@ import { Module } from '@nestjs/common';
     ProfilesSeeder,
     ProfilesService,
   ],
-  imports: [DatabaseModule, ContactMessagesModule],
+  imports: [ContactMessagesModule],
 })
 export class ProfilesModule {}

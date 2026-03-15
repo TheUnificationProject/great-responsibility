@@ -1,11 +1,9 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import type { CanActivate, ExecutionContext } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import type { Request } from 'express';
 import { Observable } from 'rxjs';
+
+export const UNAUTHORIZED_MESSAGE = 'User is not authenticated';
 
 @Injectable()
 export class AuthenticatedGuard implements CanActivate {
@@ -16,6 +14,6 @@ export class AuthenticatedGuard implements CanActivate {
 
     if (request.user?.uuid) return true;
 
-    throw new UnauthorizedException('User is not authenticated');
+    throw new UnauthorizedException(UNAUTHORIZED_MESSAGE);
   }
 }

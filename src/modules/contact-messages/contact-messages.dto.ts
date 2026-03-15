@@ -11,7 +11,7 @@ import {
   FIRST_NAME_MAX_LENGTH,
   LAST_NAME_MAX_LENGTH,
   ORGANIZATION_NAME_MAX_LENGTH,
-} from 'optimus-package/schemas/contact-message.schema';
+} from 'optimus-package/entities/contact-message.entity';
 
 export class SendMessageBody {
   @IsString()
@@ -20,7 +20,7 @@ export class SendMessageBody {
   @ApiProperty({
     example: 'John',
   })
-  firstName: string;
+  firstName!: string;
 
   @IsString()
   @IsNotEmpty()
@@ -28,7 +28,7 @@ export class SendMessageBody {
   @ApiProperty({
     example: 'Doe',
   })
-  lastName: string;
+  lastName!: string;
 
   @IsString()
   @IsNotEmpty()
@@ -45,7 +45,7 @@ export class SendMessageBody {
   @ApiProperty({
     example: 'contact@email.fr',
   })
-  email: string;
+  email!: string;
 
   @IsString()
   @IsPhoneNumber()
@@ -61,5 +61,5 @@ export class SendMessageBody {
   @ApiProperty({
     example: 'Hello, I would like to get in touch with you regarding...',
   })
-  message: string;
+  message!: string;
 }

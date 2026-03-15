@@ -25,6 +25,12 @@ export default tseslint.config(
     },
   },
   {
+    files: ['**/*.spec.ts'],
+    rules: {
+      '@typescript-eslint/unbound-method': 'off',
+    },
+  },
+  {
     rules: {
       'no-restricted-imports': [
         'warn',
@@ -37,6 +43,7 @@ export default tseslint.config(
           ],
         },
       ],
+      '@typescript-eslint/no-deprecated': 'warn',
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',

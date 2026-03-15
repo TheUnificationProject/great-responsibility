@@ -1,24 +1,14 @@
-import { AbstractRepository } from '@modules/database/abstract.repository';
-import { DatabaseService } from '@modules/database/database.service';
+import { EntityManager, EntityRepository } from '@mikro-orm/core';
 import { Injectable } from '@nestjs/common';
-import { eq, or, SQL } from 'drizzle-orm';
-import { UserEntity, UserSchema, userSchema } from 'optimus-package';
+import { UserEntity } from 'optimus-package';
 
 @Injectable()
-export class UsersRepository extends AbstractRepository<
-  UserSchema,
-  UserEntity
-> {
-  constructor(databaseService: DatabaseService) {
-    super(databaseService, userSchema);
+export class UsersRepository extends EntityRepository<UserEntity> {
+  constructor(em: EntityManager) {
+    super(em, UserEntity);
   }
 
   public async findByLogin(login: string): Promise<Nullable<UserEntity>> {
-    return this.findOne(
-      or(
-        eq(userSchema.username, login),
-        eq(userSchema.email, login),
-      ) as SQL<UserSchema>,
-    );
+    return this.findOne({ $or: [{ username: login }, { email: login }] });
   }
 }

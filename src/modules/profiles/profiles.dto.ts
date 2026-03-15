@@ -22,7 +22,7 @@ import {
   LAST_NAME_MIN_LENGTH,
   LINKEDIN_SLUG_MAX_LENGTH,
   TITLE_MAX_LENGTH,
-} from 'optimus-package/schemas/profile.schema';
+} from 'optimus-package/entities/profile.entity';
 
 export class GetProfilesQuery extends PaginationQueryParams {}
 
@@ -32,7 +32,7 @@ export class ProfileParams {
     description: 'The UUID of the profile',
     example: '08532d7c-f50e-4190-9b19-b4e7169dc7cd',
   })
-  uuid: string;
+  uuid!: string;
 }
 
 export class UpdateProfileBody {

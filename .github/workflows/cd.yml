@@ -18,7 +18,7 @@ jobs:
         run: |
           git pull origin main
           npm ci
-          npm run drizzle:migrate
+          npm run migrate
 
   deploy:
     name: Deploy

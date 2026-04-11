@@ -22,10 +22,7 @@ async function bootstrap() {
   const redisService = app.get(RedisService);
 
   app.enableCors({
-    origin:
-      configService.get('NODE_ENV') === 'production'
-        ? [/^https:\/\/([a-z0-9-]+\.)*clement-fossorier\.fr$/]
-        : true,
+    origin: configService.get('NODE_ENV') === 'production' ? false : true,
     credentials: true,
   });
 
@@ -55,8 +52,7 @@ async function bootstrap() {
   setupSwagger(app);
 
   const port = process.env.PORT ?? DEFAULT_PORT;
-  if (configService.get('NODE_ENV') === 'production') await app.listen(port);
-  else await app.listen(port, '0.0.0.0'); // Allows to connect from other devices on the same network
+  await app.listen(port, '0.0.0.0');
 }
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises

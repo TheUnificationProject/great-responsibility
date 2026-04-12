@@ -38,7 +38,7 @@ jobs:
         working-directory: ${{ vars.WORKDIR }}
         run: |
           echo "Waiting for service to start..."
-          if ! timeout 60 bash -c 'until curl -sf http://localhost:3000/health; do sleep 2; done'; then
+          if ! timeout 60 bash -c 'until docker compose exec great-responsibility curl -sf http://localhost:3000/health; do sleep 2; done'; then
             echo "Health check failed!"
             exit 1
           fi

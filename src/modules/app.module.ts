@@ -1,6 +1,4 @@
 import { MikroOrmModule } from '@mikro-orm/nestjs';
-import { MikroOrmMiddlewareModule } from '@mikro-orm/nestjs/mikro-orm-middleware.module';
-import { defineConfig } from '@mikro-orm/postgresql';
 import { AppController } from '@modules/app.controller';
 import { AuthModule } from '@modules/auth/auth.module';
 import { ConfigModule } from '@modules/config/config.module';
@@ -10,17 +8,14 @@ import { ProfilesModule } from '@modules/profiles/profiles.module';
 import { RedisModule } from '@modules/redis/redis.module';
 import { SkillsModule } from '@modules/skills/skills.module';
 import { Module } from '@nestjs/common';
-import * as Entities from 'optimus-package/entities';
 
 @Module({
   controllers: [AppController],
   imports: [
-    MikroOrmModule.forRoot(
-      defineConfig({
-        clientUrl: process.env.DATABASE_URL,
-        entities: Object.values(Entities),
-      }),
-    ),
+    MikroOrmModule.forRoot({
+      clientUrl: process.env.DATABASE_URL,
+      autoLoadEntities: true,
+    }),
     ConfigModule,
     ProfilesModule,
     ContactMessagesModule,
@@ -28,7 +23,6 @@ import * as Entities from 'optimus-package/entities';
     AuthModule,
     SkillsModule,
     FirebaseModule,
-    MikroOrmMiddlewareModule.forRoot(),
   ],
 })
 export class AppModule {}

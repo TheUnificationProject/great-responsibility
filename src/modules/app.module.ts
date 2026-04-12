@@ -1,4 +1,5 @@
 import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { defineConfig } from '@mikro-orm/postgresql';
 import { AppController } from '@modules/app.controller';
 import { AuthModule } from '@modules/auth/auth.module';
 import { ConfigModule } from '@modules/config/config.module';
@@ -13,7 +14,9 @@ import { Module } from '@nestjs/common';
   controllers: [AppController],
   imports: [
     MikroOrmModule.forRoot({
-      clientUrl: process.env.DATABASE_URL,
+      ...defineConfig({
+        clientUrl: process.env.DATABASE_URL,
+      }),
       autoLoadEntities: true,
     }),
     ConfigModule,

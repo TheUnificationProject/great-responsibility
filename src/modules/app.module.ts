@@ -1,4 +1,5 @@
 import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { MikroOrmMiddlewareModule } from '@mikro-orm/nestjs/mikro-orm-middleware.module';
 import { defineConfig } from '@mikro-orm/postgresql';
 import { AppController } from '@modules/app.controller';
 import { AuthModule } from '@modules/auth/auth.module';
@@ -26,6 +27,7 @@ import { Module } from '@nestjs/common';
     AuthModule,
     SkillsModule,
     FirebaseModule,
+    MikroOrmMiddlewareModule.forRoot(),
   ],
 })
 export class AppModule {}
